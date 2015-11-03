@@ -10,11 +10,14 @@
   },
 
   "background": {
-  "scripts": ["background.js"]
+  "scripts": ["cookieDisplay.js"]
   },
     
   "permissions": [
     "activeTab",
+    "cookies",
+    "*://*.google.com/*",
+    "*://*.ebay.com/*",
     "https://ajax.googleapis.com/"
   ]
 }
