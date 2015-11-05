@@ -6,18 +6,27 @@
   "version": "1.0",
 
   "browser_action": {
-    "default_icon": "icon.png"
+    "default_icon": "icon.png",
+    "default_popup":"popup.html"
   },
 
-  "background": {
-  "scripts": ["cookieDisplay.js"]
-  },
-    
+//  "background": {
+//  "scripts": ["cookieDisplay.js"]
+//  },
+//
+//  "content_scripts": [
+//    {
+//      "matches": ["http://www.google.com/*"],
+//      "js": ["jquery-1.11.3.js","cookieDisplay.js"]
+//    }
+//  ],
+
   "permissions": [
     "activeTab",
     "cookies",
     "*://*.google.com/*",
     "*://*.ebay.com/*",
-    "https://ajax.googleapis.com/"
+    "https://ajax.googleapis.com/",
+    "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"
   ]
 }
