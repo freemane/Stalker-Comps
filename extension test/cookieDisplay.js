@@ -1,16 +1,17 @@
-chrome.cookies.getAll({}, function (cookies) {
-    console.log('testing');
-    for (var i = 0; i < cookies.length; i++) {
-        var cook = cookies[i];
-        //if (cook.domain.charAt(0) != ".") {
-        $(".cookie").append("<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p>");
-        //}
+function getAllCookies() {
+    chrome.cookies.getAll({}, function (cookies) {
+        console.log('testing');
+        for (var i = 0; i < cookies.length; i++) {
+            var cook = cookies[i];
+            //if (cook.domain.charAt(0) != ".") {
+            $(".cookie").append("<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p>");
+            //}
 
-    }
-    $(".count").append("<p>Num cookies: " + cookies.length + "</p>");
-    return;
-});
-
+        }
+        $(".count").append("<p>Num cookies: " + cookies.length + "</p>");
+        return;
+    });
+}
 
 function removeCookies() {
     chrome.cookies.getAll({},
@@ -60,5 +61,6 @@ function removeCookies() {
 
 
 $(function () {
+    getAllCookies();
     $("#cookieButton").click(removeCookies);
 });
