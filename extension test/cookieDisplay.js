@@ -3,7 +3,8 @@ chrome.cookies.getAll({}, function (cookies) {
     for (var i = 0; i < cookies.length; i++) {
         var cook = cookies[i];
         //if (cook.domain.charAt(0) != ".") {
-        $(".cookie").append("<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p>");
+        $("#cookie").append("Name: " + cook.name + " Value: " + cook.value + " Domain: " + cook.domain + "<input type=\"checkbox\" name=\"" + cook.name + " " + cook.domain + " " + cook.value + "\"><br>");
+
         //}
 
     }
@@ -11,8 +12,35 @@ chrome.cookies.getAll({}, function (cookies) {
     return;
 });
 
+function removeSelectedCookies() {
+    chrome.cookies.getAll({},
+        function (cookies) {
 
-function removeCookies() {
+            var selected = [];
+            $('#cookie input:checked').each(function () {
+                selected.push($(this).attr('name'));
+            });
+            console.log(selected);
+
+            for (var i = 0; i < selected.length; i++) {
+                for (var j = 0; j < cookies.length; j++) {
+                    var cookie = cookies[j];
+
+                    curSelected = selected[i].split(" ");
+                    if (cookie.name == curSelected[0] && cookie.domain == curSelected[1] && cookie.value == curSelected[2]) {
+                        chrome.cookies.remove({
+                            url: "http" + ((cookie.secure) ? "s" : "") + "://" + cookie.domain,
+                            name: cookie.name
+                        });
+                        console.log('cookie removed');
+                    }
+                }
+            }
+        });
+    location.reload();
+};
+
+function removeAllCookies() {
     chrome.cookies.getAll({},
         function (cookies) {
             var startNum = cookies.length;
@@ -53,12 +81,12 @@ function removeCookies() {
             }
             var endNum = cookies.length - startNum;
             console.log(endNum);
-            //alert(endNum + " cookies deleted.");
         });
     location.reload();
 };
 
 
 $(function () {
-    $("#cookieButton").click(removeCookies);
+    $("#Delete").click(removeSelectedCookies);
+    $("#DeleteAll").click(removeAllCookies);
 });
