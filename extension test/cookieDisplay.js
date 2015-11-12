@@ -40,6 +40,21 @@ function removeSelectedCookies() {
     location.reload();
 };
 
+function getAllCookies() {
+    chrome.cookies.getAll({}, function (cookies) {
+        console.log('testing');
+        for (var i = 0; i < cookies.length; i++) {
+            var cook = cookies[i];
+            //if (cook.domain.charAt(0) != ".") {
+            $(".cookie").append("<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p>");
+            //}
+
+        }
+        $(".count").append("<p>Num cookies: " + cookies.length + "</p>");
+        return;
+    });
+}
+
 function removeAllCookies() {
     chrome.cookies.getAll({},
         function (cookies) {
@@ -89,4 +104,6 @@ function removeAllCookies() {
 $(function () {
     $("#Delete").click(removeSelectedCookies);
     $("#DeleteAll").click(removeAllCookies);
+    getAllCookies();
+
 });

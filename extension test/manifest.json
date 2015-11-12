@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
 
-    "name": "Getting started example",
-    "description": "This extension shows a Google Image search result for the current page",
+    "name": "Cookie Comps Extension",
+    "description": "This extension is what we're using to learn about chrome extensions and interacting with cookies",
     "version": "1.0",
 
     "browser_action": {
@@ -10,9 +10,9 @@
         "default_popup": "popup.html"
     },
 
-    //  "background": {
-    //  "scripts": ["cookieDisplay.js"]
-    //  },
+    "background": {
+      "scripts": ["background.js"]
+      },
     //
     //  "content_scripts": [
     //    {
@@ -24,6 +24,7 @@
     "permissions": [
     "activeTab",
     "cookies",
+    "history",
     "https://ajax.googleapis.com/",
     "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js",
     "\u003Call_urls\u003E"
