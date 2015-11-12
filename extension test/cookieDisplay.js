@@ -46,7 +46,16 @@ function getAllCookies() {
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             //if (cook.domain.charAt(0) != ".") {
-            $(".cookie").append("<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p>");
+            var key = cook.domain.concat(cook.name);
+            $(".cookie").append("<div id= \"" + key.replace(/\./g,'') +"\">" + "<p>Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "</p></div>");
+            
+            chrome.storage.local.get(key, function (obj) {
+                var urlKey = Object.keys(obj)[0];
+                var setterInfo = obj[urlKey];
+                var id = "#".concat(urlKey).replace(/\./g,'');
+                $(id).append("<p>Set By: " + setterInfo.sourceUrl +"</p>");
+                });
+            
             //}
 
         }
