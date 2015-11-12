@@ -22,7 +22,6 @@ var curUrl = undefined;
 var curUrlVisitTime = undefined;
 
 chrome.history.onVisited.addListener( function(result) {
-    alert("h");
     curUrl = result.url;
     curUrlVisitTime = result.lastVisitTime;
 
@@ -33,11 +32,15 @@ chrome.cookies.onChanged.addListener ( function (changed) {
     var cause = changed.OnChangedCause;
     if (!changed.removed) {
     	var cookieInfo = {sourceUrl:curUrl,modTime:curUrlVisitTime};
-    	alert(cookieInfo);
-    	chrome.storage.local.set({cookie.domain+cookie.name:cookieInfo}, function (){
+        var key = cookie.domain.concat(cookie.name);
+        var setObject = {};
+        setObject[key] = cookieInfo;
+    	chrome.storage.local.set(setObject, function (){
     		//return function on storage of cookie success
-    		alert("yay");
-    	}
+    		chrome.storage.local.get(key,function (item) {
+                var info = item[key];
+            });
+    	});
         // alert("new cookie!: " + cookie.name+ "domain: "+ cookie.domain + "\n set from: "+curUrl);
     }
 });
