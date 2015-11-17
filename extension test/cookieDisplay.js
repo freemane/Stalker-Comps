@@ -95,10 +95,15 @@ function removeAllCookies() {
     location.reload();
 };
 
+function openWebapp() {
+    var newURL = "/webapp.html";
+    chrome.tabs.create({ url: newURL });
+};
 
 $(function () {
     $("#Delete").click(removeSelectedCookies);
     $("#DeleteAll").click(removeAllCookies);
     getAllCookies();
+    $("#WebApp").click(openWebapp);
 
 });

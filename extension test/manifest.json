@@ -23,6 +23,7 @@
 
     "permissions": [
     "activeTab",
+        "tabs",
     "cookies",
     "history",
     "storage",
