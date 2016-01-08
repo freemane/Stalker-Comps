@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>This is our test popup</title>
+    <script type="text/javascript" src="jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="cookieDisplay.js"></script>
+</head>
+<body>
+    <div class="cookie"></div>
+    <div class="count"></div>
+    <button id="cookieButton">Delete Cookie</button>
+    <form action="demo_form.asp">
+        <input type="checkbox" name="vehicle" value="Bike"> I have a bike
+        <br>
+        <input type="checkbox" name="vehicle" value="Car" checked> I have a car
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+-->
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Basic Bootstrap Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+
+<body>
+    <h1>Welcome to CookieJar</h1>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    
+    <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+    <script>
+    $(document).ready(function() {
+    $('#test').DataTable();
+    } );
+    </script>
+
+
+<table id="test" class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Value</th>
+        <th>Domain</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="success">
+        <td>Test</td>
+        <td>Information</td>
+        <td>Write a  script!</td>
+      </tr>
+      <tr class="danger">
+        <td>Yeah</td>
+        <td>Test</td>
+        <td>Cookie</td>
+      </tr>
+      <tr class="info">
+        <td>Test</td>
+        <td>Yay</td>
+        <td>Test</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+
+</html>

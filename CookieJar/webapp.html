@@ -2,59 +2,74 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>WebApp</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Basic Bootstrap Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--  Original styles and scripts  -->
+<!--
+    <script type="text/javascript" src="jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="cookieDisplay.js"></script>
+
+
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
     
-<!-- PROBLEMS WITH THESE THREE -->
-<!--<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>-->
-<script type="text/javascript" src="jquery-1.11.3.js"></script>
-<script type="text/javascript" src="cookieDisplay.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+-->
     
-    
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
-    
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
-    
-<!-- Apply DataTable style -->
+<!--  DataTables  -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
 <script>
-$(document).ready( function () {
-    $('#table_id').DataTable();
+$(document).ready(function() {
+    $('#test').DataTable();
 } );
-</script>  
-    
+</script>
 </head>
-    
 
 <body>
     <h1>Welcome to CookieJar</h1>
+    
 
-    <table id="table_id" class="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Value</th>
-            <th>Domain</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="success">
-            <td>Test</td>
-            <td>Information</td>
-            <td>Write a  script!</td>
-          </tr>
-          <tr class="danger">
-            <td>Yeah</td>
-            <td>Test</td>
-            <td>Cookie</td>
-          </tr>
-          <tr class="info">
-            <td>Test</td>
-            <td>Yay</td>
-            <td>Test</td>
-          </tr>
-        </tbody>
-    </table>
+
+    
+
+
+
+<table id="test" class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Value</th>
+        <th>Domain</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="success">
+        <td>Test</td>
+        <td>Information</td>
+        <td>Write a  script!</td>
+      </tr>
+      <tr class="danger">
+        <td>Yeah</td>
+        <td>Test</td>
+        <td>Cookie</td>
+      </tr>
+      <tr class="info">
+        <td>Test</td>
+        <td>Yay</td>
+        <td>Test</td>
+      </tr>
+    </tbody>
+  </table>
+
+    
+    
 
 <div class="count"></div>
     <input type="button" id="Delete" Value="Delete Selected Cookies">
