@@ -13,13 +13,16 @@
     "background": {
       "scripts": ["background.js"]
       },
-    //
-    //  "content_scripts": [
-    //    {
-    //      "matches": ["http://www.google.com/*"],
-    //      "js": ["jquery-1.11.3.js","cookieDisplay.js"]
-    //    }
-    //  ],
+    
+//   "content_scripts": [
+//        {
+//          "matches": ["http://www.google.com/*"],
+//          "css": ["https://cdn.datatables.net/1.10.10/css/jquery.dataTables.css"]
+//        }
+//      ],
+  
+//    "web_accessible_resources": ["https://code.jquery.com/jquery-1.11.3.min.js",
+//                                "https://cdn.datatables.net/1.10.10/js/jquery.dataTables.js"],
 
     "permissions": [
     "activeTab",
@@ -29,6 +32,9 @@
     "storage",
     "https://ajax.googleapis.com/",
     "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js",
+    "https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css",
+    "https://code.jquery.com/jquery-1.11.3.min.js",
+    "https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js",
     "\u003Call_urls\u003E"
   ]
 }
