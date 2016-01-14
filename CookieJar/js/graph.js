@@ -1,3 +1,10 @@
+// table
+$(document).ready(function() {
+    $('#test').dataTable();
+} );
+
+// graph
+
 var cy = cytoscape({
 
   container: document.getElementById('cy'), // container to render in
