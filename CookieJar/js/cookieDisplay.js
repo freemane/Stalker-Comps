@@ -29,9 +29,9 @@ function removeSelectedCookies() {
 function getAllCookies() {
     chrome.cookies.getAll({}, function (cookies) {
         console.log('testing');
+        var outputCookies = [];
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
-            //if (cook.domain.charAt(0) != ".") {
             var key = cook.domain.concat(cook.name);
             $(".cookie").append("<div id= \"" + key.replace(/\./g, '') + "\">" + "Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "<input type=\"checkbox\" name=\"" + cook.name + " " + cook.domain + "\"></div>");
 
@@ -41,13 +41,34 @@ function getAllCookies() {
                 var id = "#".concat(urlKey).replace(/\./g, '');
                 $(id).append("<p>Set By: " + setterInfo.sourceUrl + "</p>");
             });
-
-            //}
-
+            //put cookies into table format
+            outputCookies.push([cook.name, cook.value, cook.domain]);
         }
         $(".count").append("<p>Num cookies: " + cookies.length + "</p>");
+        $(".outputCookies").append(createTable(outputCookies));
         return;
     });
+};
+
+//from http://stackoverflow.com/a/15164958
+function createTable(tableData) {
+    var table = document.createElement('table')
+        , tableBody = document.createElement('tbody');
+    table.setAttribute("id","test");
+    table.setAttribute("class","table");
+
+    tableData.forEach(function(rowData) {
+        var row = document.createElement('tr');
+        rowData.forEach(function(cellData) {
+            var cell = document.createElement('td');
+            cell.appendChild(document.createTextNode(cellData));
+            row.appendChild(cell);
+        });
+        tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableBody);
+    document.body.appendChild(table);
 }
 
 function removeAllCookies() {
