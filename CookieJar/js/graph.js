@@ -1,7 +1,7 @@
 // table
-$(document).ready(function() {
-    $('#test').dataTable();
-} );
+//$(document).ready(function() {
+//    $('#cookieTable').dataTable();
+//} );
 
 // graph
 

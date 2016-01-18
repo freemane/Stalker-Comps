@@ -30,6 +30,7 @@ function getAllCookies() {
     chrome.cookies.getAll({}, function (cookies) {
         console.log('testing');
         var outputCookies = [];
+        outputCookies.push(["Name", "Domain"]);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name);
@@ -39,24 +40,38 @@ function getAllCookies() {
                 var urlKey = Object.keys(obj)[0];
                 var setterInfo = obj[urlKey];
                 var id = "#".concat(urlKey).replace(/\./g, '');
-                $(id).append("<p>Set By: " + setterInfo.sourceUrl + "</p>");
+//                $(id).append("<p>Set By: " + setterInfo.sourceUrl + "</p>");
             });
             //put cookies into table format
-            outputCookies.push([cook.name, cook.value, cook.domain]);
+            outputCookies.push([cook.name, cook.domain]);
         }
-        $(".count").append("<p>Num cookies: " + cookies.length + "</p>");
-        $(".outputCookies").append(createTable(outputCookies));
+        $(".count").append("<p>Number of cookies: " + cookies.length + "</p>");
+        createTable(outputCookies,".outputCookies");
         return;
     });
 };
 
 //from http://stackoverflow.com/a/15164958
-function createTable(tableData) {
+function createTable(data, cookieDiv) {
     var table = document.createElement('table')
-        , tableBody = document.createElement('tbody');
-    table.setAttribute("id","test");
+        , tableBody = document.createElement('tbody')
+        , tableHeader = document.createElement('thead');
+    
     table.setAttribute("class","table");
-
+    table.setAttribute("id","cookieTable");
+    table.setAttribute("width","100%");
+    table.setAttribute("cellspacing","0");
+    
+    var headerData = data.slice(0,1)[0];
+    var row = document.createElement('tr');
+    headerData.forEach(function(cellData) {
+        var cell = document.createElement('th'); 
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+    });
+    tableHeader.appendChild(row);
+    
+    var tableData = data.slice(1,data.length);
     tableData.forEach(function(rowData) {
         var row = document.createElement('tr');
         rowData.forEach(function(cellData) {
@@ -67,9 +82,12 @@ function createTable(tableData) {
         tableBody.appendChild(row);
     });
 
+    table.appendChild(tableHeader);
     table.appendChild(tableBody);
-    document.body.appendChild(table);
-}
+    
+    $(cookieDiv).append(table);
+    $('#cookieTable').dataTable();
+};
 
 function removeAllCookies() {
     chrome.cookies.getAll({},
