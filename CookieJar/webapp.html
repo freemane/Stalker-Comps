@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
+
 <meta charset="UTF-8">
+
 <title>CookieJar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
     
@@ -22,23 +24,41 @@
 
 </head>
 
+    <style type="text/css">
+      body { font-size: 80%; font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif; }
+      ul#tabs { list-style-type: none; margin: 30px 0 0 0; padding: 0 0 0.3em 0; }
+      ul#tabs li { display: inline; }
+      ul#tabs li a { color: #42454a; background-color: #dedbde; border: 1px solid #c9c3ba; border-bottom: none; padding: 0.3em; text-decoration: none; }
+      ul#tabs li a:hover { background-color: #f1f0ee; }
+      ul#tabs li a.selected { color: #000; background-color: #f1f0ee; font-weight: bold; padding: 0.7em 0.3em 0.38em 0.3em; }
+      div.tabContent { border: 1px solid #c9c3ba; padding: 0.5em; background-color: #f1f0ee; }
+      div.tabContent.hide { display: none; }
+    </style>
+
 <body>
     <h1>Welcome to CookieJar</h1>
 
-<div id="cy"></div>
-<div class="count"></div>
-<div class="outputCookies"></div>
-    
-<button id="buttonRemoveRow">Delete Selected Cookies</button>
-<input type="button" id="DeleteAll" Value="Delete All Cookies">
-<!--
-<form action="" method="get">Here are your cookies:
-    <div class="cookie"></div>
-</form>
--->
+
+<ul id="tabs">
+  <li><a href="#table">Cookies in a Table!</a></li>
+  <li><a href="#graph">Cookies in a Graph!</a></li>
+</ul>    
+
+<!--  div of table  -->
+<div class="tabContent" id="table">
+	<div class="outputCookies"></div>
+	<input type="button" id="Delete" Value="Delete Selected Cookies">
+    <input type="button" id="DeleteAll" Value="Delete All Cookies">
+<form action="" method="get"></form>
+</div>
 
 
-</body>
+<!--  div of graph  -->
+<div class="tabContent" id="graph">
+	<div id="cy"></div>
+	<script type="text/javascript" src="js/graph.js" ></script>
+</div>
+
 
 </body>
 </html>
