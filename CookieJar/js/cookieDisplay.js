@@ -1,18 +1,19 @@
-function removeSelectedCookies() {
+
+/* 
+modifications made to removeSelectedCookies:
+    -now requires an array of selected cookies
+    -no longer uses check boxes
+*/
+function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
         function (cookies) {
-
-            var selected = [];
-            $('.cookie input:checked').each(function () {
-                selected.push($(this).attr('name'));
-            });
-            console.log(selected);
+            console.log("trying to remove:" + selected[0]);
 
             for (var i = 0; i < selected.length; i++) {
                 for (var j = 0; j < cookies.length; j++) {
                     var cookie = cookies[j];
 
-                    curSelected = selected[i].split(" ");
+                    curSelected = selected[i];
                     if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
                         chrome.cookies.remove({
                             url: "http" + ((cookie.secure) ? "s" : "") + "://" + cookie.domain,
@@ -23,12 +24,16 @@ function removeSelectedCookies() {
                 }
             }
         });
-    location.reload();
+//    DataTables dynammically updates the table so we don't have to reload the page
+//    location.reload();
 };
 
+/*
+In addition to getting all cookies, also creates an array (outputCookies) with data 
+for the HTML table.
+*/
 function getAllCookies() {
     chrome.cookies.getAll({}, function (cookies) {
-        console.log('testing');
         var outputCookies = [];
         outputCookies.push(["Name", "Domain"]);
         for (var i = 0; i < cookies.length; i++) {
@@ -51,17 +56,19 @@ function getAllCookies() {
     });
 };
 
-//from http://stackoverflow.com/a/15164958
+// adapted from http://stackoverflow.com/a/15164958
 function createTable(data, cookieDiv) {
     var table = document.createElement('table')
         , tableBody = document.createElement('tbody')
         , tableHeader = document.createElement('thead');
     
-    table.setAttribute("class","table");
+    // DataTable attributes
+    table.setAttribute("class","display compact");
     table.setAttribute("id","cookieTable");
     table.setAttribute("width","100%");
     table.setAttribute("cellspacing","0");
     
+    // convert first array in array to the HTML header row
     var headerData = data.slice(0,1)[0];
     var row = document.createElement('tr');
     headerData.forEach(function(cellData) {
@@ -71,6 +78,7 @@ function createTable(data, cookieDiv) {
     });
     tableHeader.appendChild(row);
     
+    // convert the rest of the array into the HTML data
     var tableData = data.slice(1,data.length);
     tableData.forEach(function(rowData) {
         var row = document.createElement('tr');
@@ -86,7 +94,44 @@ function createTable(data, cookieDiv) {
     table.appendChild(tableBody);
     
     $(cookieDiv).append(table);
-    $('#cookieTable').dataTable();
+    
+    initializeDataTable();
+};
+
+function initializeDataTable() {
+    var cookieTable = $('#cookieTable').DataTable({
+        "lengthMenu": [[15, 25, 100, -1], [15, 25, 100, "All"]]
+    });
+    
+    // allows a single row to be selected
+    $('#cookieTable tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            cookieTable.$('tr.selected');//.removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
+    
+    // button removes selected rows
+    $('#buttonRemoveRow').click( function () {
+        
+        // convert html into an array. adapted from http://stackoverflow.com/a/9579792
+        var selectedCookies = [];
+        cookieTable.$('tr.selected').each(function() {
+            var arrayOfThisRow = [];
+            var tableData = $(this).find('td');
+            if (tableData.length > 0) {
+                tableData.each(function() { arrayOfThisRow.push($(this).text()); });
+                selectedCookies.push(arrayOfThisRow);
+            }
+        });
+        console.log(selectedCookies);
+        
+        $(cookieTable.$('tr.selected')).remove();
+        removeSelectedCookies(selectedCookies);
+    } );
 };
 
 function removeAllCookies() {
@@ -140,7 +185,6 @@ function openWebapp() {
 };
 
 $(function () {
-    $("#Delete").click(removeSelectedCookies);
     $("#DeleteAll").click(removeAllCookies);
     getAllCookies();
     $("#WebApp").click(openWebapp);
