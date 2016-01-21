@@ -39,20 +39,17 @@ function getAllCookies() {
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name);
-            $(".cookie").append("<div id= \"" + key.replace(/\./g, '') + "\">" + "Name: " + cook.name + "\nValue: " + cook.value + "\nDomain: " + cook.domain + "<input type=\"checkbox\" name=\"" + cook.name + " " + cook.domain + "\"></div>");
-
-            chrome.storage.local.get(key, function (obj) {
-                var urlKey = Object.keys(obj)[0];
-                var setterInfo = obj[urlKey];
-                var id = "#".concat(urlKey).replace(/\./g, '');
-//                $(id).append("<p>Set By: " + setterInfo.sourceUrl + "</p>");
-            });
+            // chrome.storage.local.get(key, function (obj) {
+            //     var urlKey = Object.keys(obj)[0];
+            //     var setterInfo = obj[urlKey];
+            //     var id = "#".concat(urlKey).replace(/\./g, '');
+            // });
             //put cookies into table format
             outputCookies.push([cook.name, cook.domain]);
         }
         $(".count").append("<p>Number of cookies: " + cookies.length + "</p>");
         createTable(outputCookies,".outputCookies");
-        return;
+        createGraph(cookies);
     });
 };
 
@@ -93,8 +90,7 @@ function createTable(data, cookieDiv) {
     table.appendChild(tableHeader);
     table.appendChild(tableBody);
     
-    $(cookieDiv).append(table);
-    
+    $(cookieDiv).append(table);    
     initializeDataTable();
 };
 
@@ -132,7 +128,88 @@ function initializeDataTable() {
         $(cookieTable.$('tr.selected')).remove();
         removeSelectedCookies(selectedCookies);
     } );
-};
+    $('#cookieTable').dataTable();
+}
+
+
+function createGraph(data) {
+    var points = [];
+    var domains ={};
+    for (var i = 0; i < data.length; i++) {
+        var cook = data[i];
+        var key = cook.domain.concat(cook.name);
+        if (!(cook.domain in domains)) {
+            var parent = 
+                {
+                    "data" : {"id":cook.domain, "weight":2},
+                    "group":"nodes",
+                    "removed":false,
+                    "selected":false,
+                    "selectable":true,
+                    "locked":false,
+                    "grabbable":true,
+                    "classes":""
+                };
+            points.push(parent);
+            domains[cook.domain] = true;
+
+        }
+        var node =
+            {
+                    "data" : {"id":key,"class":cook.domain, "weight":1,parent: cook.domain},
+                    
+                    "group":"nodes",
+                    "removed":false,
+                    "selected":false,
+                    "selectable":true,
+                    "locked":false,
+                    "grabbable":true,
+                    "classes":""
+            };
+        var edgeObj = {data: {"id":key.concat("parentedge"),"class":cook.domain,source:cook.domain,target:key}};
+        points.push(node);
+        //points.push(edgeObj);
+    }
+
+    var cy = cytoscape({
+
+      container: document.getElementById('cy'), // container to render in
+
+      elements: points,
+
+      style: [ // the stylesheet for the graph
+        {
+          selector: 'node',
+          style: {
+            'background-color': '#666',
+            'label': 'data(id)'
+          }
+        },
+
+        {
+          selector: 'edge',
+          style: {
+            'width': 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle'
+          }
+        }
+      ],
+      layout: {
+        name: 'random'
+      }
+
+    // var a = cy.$('#a'); // assume a compound node
+
+    // // the neighbourhood of `a` contains directly connected elements
+    // var directlyConnected = a.neighborhood();
+
+    // // you may want everything connected to its descendants instead
+    // // because the descendants "belong" to `a`
+    // var indirectlyConnected = a.add( a.descendants() ).neighborhood();
+    });
+}
 
 function removeAllCookies() {
     chrome.cookies.getAll({},
