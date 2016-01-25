@@ -114,6 +114,7 @@ function initializeDataTable() {
         }
         else {
             cookieTable.$('tr.selected');//.removeClass('selected');
+//            cookieTable.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
         }
     } );
@@ -130,6 +131,9 @@ function initializeDataTable() {
                 tableData.each(function() { arrayOfThisRow.push($(this).text()); });
                 selectedCookies.push(arrayOfThisRow);
             }
+            // removes all selected rows from table
+            // PROBLEM:  also removes rows of cookies that weren't actually deleted
+            cookieTable.row('tr.selected').remove().draw(false);
         });
         console.log(selectedCookies);
         
