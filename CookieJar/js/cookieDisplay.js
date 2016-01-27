@@ -46,31 +46,98 @@ function getAllCookies() {
             //put cookies into table format
             outputCookies.push([cook.name, cook.domain]);
         }
-        $(".count").append("<p>Number of cookies: " + cookies.length + "</p>");
-        // $(".listCookies").append("Here are your first 5 cookies!<p>" + outputCookies[1] + "</p>");
-        // $(".listCookies").append("<p>" + outputCookies[2] + "</p>");
-        // $(".listCookies").append("<p>" + outputCookies[3] + "</p>");
-        // $(".listCookies").append("<p>" + outputCookies[4] + "</p>");
-        // $(".listCookies").append("<p>" + outputCookies[5] + "</p>");
-        makeTableHTML(outputCookies, ".listCookies");
+        $(".count").append("<p>Number of total cookies: " + cookies.length + "</p>");
+        createPopupTable(outputCookies, ".listCookies")
         createTable(outputCookies, ".outputCookies");
         createGraph(cookies);
     });
 };
 
-function makeTableHTML(myArray, listCookies) {
-    console.log("make table");
-    var result = "<table border=1>";
-    for(var i=0; i<myArray.length; i++) {
-        result += "<tr>";
-        for(var j=0; j<myArray[i].length; j++){
-            result += "<td>"+myArray[i][j]+"</td>";
+
+function createPopupTable(data, cookieDiv) {
+    var table = document.createElement('table'),
+        tableBody = document.createElement('tbody'),
+        tableHeader = document.createElement('thead');
+
+    // DataTable attributes
+    table.setAttribute("class", "display compact");
+    table.setAttribute("id", "cookieTablePopup");
+    table.setAttribute("width", "500px");
+    table.setAttribute("cellspacing", "0");
+
+    // convert first array in array to the HTML header row
+    var headerData = data.slice(0, 1)[0];
+    var row = document.createElement('tr');
+    headerData.forEach(function (cellData) {
+        var cell = document.createElement('th');
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+    });
+    tableHeader.appendChild(row);
+
+    // convert the rest of the array into the HTML data
+    var tableData = data.slice(1, data.length);
+    tableData.forEach(function (rowData) {
+        var row = document.createElement('tr');
+        rowData.forEach(function (cellData) {
+            var cell = document.createElement('td');
+            cell.appendChild(document.createTextNode(cellData));
+            row.appendChild(cell);
+        });
+        tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableHeader);
+    table.appendChild(tableBody);
+
+    $(cookieDiv).append(table);
+    initializePopupDataTable();
+};
+
+function initializePopupDataTable() {
+    var cookieTable = $('#cookieTablePopup').DataTable({
+        "lengthMenu": [[15, 25, 100, -1], [15, 25, 100, "All"]]
+    });
+
+    // allows a single row to be selected
+    $('#cookieTablePopup tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        } else {
+            cookieTable.$('tr.selected'); //.removeClass('selected');
+            //            cookieTable.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
         }
-        result += "</tr>";
-    }
-    result += "</table>";
-    $(listCookies).append(result);
+    });
+
+    // button removes selected rows
+    $('#buttonRemoveRow').click(function () {
+
+        // convert html into an array. adapted from http://stackoverflow.com/a/9579792
+        var selectedCookies = [];
+        cookieTable.$('tr.selected').each(function () {
+            var arrayOfThisRow = [];
+            var tableData = $(this).find('td');
+            if (tableData.length > 0) {
+                tableData.each(function () {
+                    arrayOfThisRow.push($(this).text());
+                });
+                selectedCookies.push(arrayOfThisRow);
+            }
+            // removes all selected rows from table
+            // PROBLEM:  also removes rows of cookies that weren't actually deleted
+            cookieTable.row('tr.selected').remove().draw(false);
+        });
+        console.log(selectedCookies);
+
+        $(cookieTable.$('tr.selected')).remove();
+        removeSelectedCookies(selectedCookies);
+    });
+    $('#cookieTablePopup').dataTable();
 }
+
+
+
 
 // adapted from http://stackoverflow.com/a/15164958
 function createTable(data, cookieDiv) {
