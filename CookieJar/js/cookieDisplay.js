@@ -47,17 +47,30 @@ function getAllCookies() {
             outputCookies.push([cook.name, cook.domain]);
         }
         $(".count").append("<p>Number of cookies: " + cookies.length + "</p>");
-        $(".listCookies").append("Here are your first 5 cookies!<p>" + outputCookies[1] + "</p>");
-        $(".listCookies").append("<p>" + outputCookies[2] + "</p>");
-        $(".listCookies").append("<p>" + outputCookies[3] + "</p>");
-        $(".listCookies").append("<p>" + outputCookies[4] + "</p>");
-        $(".listCookies").append("<p>" + outputCookies[5] + "</p>");
+        // $(".listCookies").append("Here are your first 5 cookies!<p>" + outputCookies[1] + "</p>");
+        // $(".listCookies").append("<p>" + outputCookies[2] + "</p>");
+        // $(".listCookies").append("<p>" + outputCookies[3] + "</p>");
+        // $(".listCookies").append("<p>" + outputCookies[4] + "</p>");
+        // $(".listCookies").append("<p>" + outputCookies[5] + "</p>");
+        makeTableHTML(outputCookies, ".listCookies");
         createTable(outputCookies, ".outputCookies");
         createGraph(cookies);
     });
 };
 
-
+function makeTableHTML(myArray, listCookies) {
+    console.log("make table");
+    var result = "<table border=1>";
+    for(var i=0; i<myArray.length; i++) {
+        result += "<tr>";
+        for(var j=0; j<myArray[i].length; j++){
+            result += "<td>"+myArray[i][j]+"</td>";
+        }
+        result += "</tr>";
+    }
+    result += "</table>";
+    $(listCookies).append(result);
+}
 
 // adapted from http://stackoverflow.com/a/15164958
 function createTable(data, cookieDiv) {
