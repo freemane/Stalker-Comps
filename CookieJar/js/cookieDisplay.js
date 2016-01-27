@@ -96,7 +96,7 @@ function createPopupTable(data, cookieDiv) {
 
 function initializePopupDataTable() {
     var cookieTable = $('#cookieTablePopup').DataTable({
-        "lengthMenu": [[15, 25, 100, -1], [15, 25, 100, "All"]]
+        "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]]
     });
 
     // allows a single row to be selected
