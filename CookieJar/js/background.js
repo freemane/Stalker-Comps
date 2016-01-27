@@ -17,7 +17,11 @@
 //  var newURL = "chrome://settings/cookies";
 //  chrome.tabs.create({ url: newURL });
 //});
-    
+
+
+// used to clear storage area when changing storage layout
+// chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
+
 
 
 function getCurrentTab(callback) {
@@ -41,7 +45,6 @@ function extractDomain(url) {
 
     //find & remove port number
     domain = domain.split(':')[0];
-
     return domain;
 }
                                      
@@ -49,32 +52,36 @@ chrome.cookies.onChanged.addListener ( function (changed) {
     var cookie = changed.cookie;
     var cause = changed.OnChangedCause;
     if (!changed.removed) {
-        getCurrentTab( function (tab) {
+        getCurrentTab(function (tab) {
             var key = cookie.domain.concat(cookie.name);
-            chrome.storage.local.get()
+            if (typeof tab === 'undefined') {
+                return;
+            }
         	var domain = extractDomain(tab.url);
             setDomainInfo(key,domain,function () {
                 //idk
             });
         // alert("new cookie!: " + cookie.name+ "domain: "+ cookie.domain + "\n set from: "+curUrl);
+        });
     }
 });
 
-
 function setDomainInfo(key,domain,callback) {
-    chrome.storage.local.get(key,function(item){
+    chrome.storage.local.get( key,function(item){
         var setObject = item[key];
         if (typeof setObject != 'object') {
+            console.log(typeof item);
             var t = new Date();
-            setObject= {domains:[],setTime:t.getTime(),count:0};
+            setObject= {domains:{},setTime:t.getTime(),count:0};
+        } 
+        if (typeof setObject['domains'][domain] === 'undefined'){
+            setObject['domains'][domain] = 0;
         }
-        setObject[domains].push(domain);
-        setObject[count]++;
-        chrome.storage.local.set(item, function () {
-            //verify??
-        });
-        callback;
-
+        setObject['domains'][domain]++;
+        setObject['count']++;
+        var newObj = {};
+        newObj[key] = setObject;
+        chrome.storage.local.set(newObj, callback);
     });
 }
 

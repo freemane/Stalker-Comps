@@ -5,7 +5,7 @@ modifications made to removeSelectedCookies:
 */
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
-        function (cookies) {
+        function(cookies) {
             console.log("trying to remove:" + selected[0]);
 
             for (var i = 0; i < selected.length; i++) {
@@ -32,17 +32,13 @@ In addition to getting all cookies, also creates an array (outputCookies) with d
 for the HTML table.
 */
 function getAllCookies() {
-    chrome.cookies.getAll({}, function (cookies) {
+    chrome.cookies.getAll({}, function(cookies) {
         var outputCookies = [];
+        var newCookies = [];
         outputCookies.push(["Name", "Domain"]);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name);
-            // chrome.storage.local.get(key, function (obj) {
-            //     var urlKey = Object.keys(obj)[0];
-            //     var setterInfo = obj[urlKey];
-            //     var id = "#".concat(urlKey).replace(/\./g, '');
-            // });
             //put cookies into table format
             outputCookies.push([cook.name, cook.domain]);
         }
@@ -68,7 +64,7 @@ function createPopupTable(data, cookieDiv) {
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
     var row = document.createElement('tr');
-    headerData.forEach(function (cellData) {
+    headerData.forEach(function(cellData) {
         var cell = document.createElement('th');
         cell.appendChild(document.createTextNode(cellData));
         row.appendChild(cell);
@@ -77,9 +73,9 @@ function createPopupTable(data, cookieDiv) {
 
     // convert the rest of the array into the HTML data
     var tableData = data.slice(1, data.length);
-    tableData.forEach(function (rowData) {
+    tableData.forEach(function(rowData) {
         var row = document.createElement('tr');
-        rowData.forEach(function (cellData) {
+        rowData.forEach(function(cellData) {
             var cell = document.createElement('td');
             cell.appendChild(document.createTextNode(cellData));
             row.appendChild(cell);
@@ -96,11 +92,14 @@ function createPopupTable(data, cookieDiv) {
 
 function initializePopupDataTable() {
     var cookieTable = $('#cookieTablePopup').DataTable({
-        "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]]
+        "lengthMenu": [
+            [10, 20, 50, -1],
+            [10, 20, 50, "All"]
+        ]
     });
 
     // allows a single row to be selected
-    $('#cookieTablePopup tbody').on('click', 'tr', function () {
+    $('#cookieTablePopup tbody').on('click', 'tr', function() {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
         } else {
@@ -111,15 +110,15 @@ function initializePopupDataTable() {
     });
 
     // button removes selected rows
-    $('#buttonRemoveRow').click(function () {
+    $('#buttonRemoveRow').click(function() {
 
         // convert html into an array. adapted from http://stackoverflow.com/a/9579792
         var selectedCookies = [];
-        cookieTable.$('tr.selected').each(function () {
+        cookieTable.$('tr.selected').each(function() {
             var arrayOfThisRow = [];
             var tableData = $(this).find('td');
             if (tableData.length > 0) {
-                tableData.each(function () {
+                tableData.each(function() {
                     arrayOfThisRow.push($(this).text());
                 });
                 selectedCookies.push(arrayOfThisRow);
@@ -155,7 +154,7 @@ function createTable(data, cookieDiv) {
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
     var row = document.createElement('tr');
-    headerData.forEach(function (cellData) {
+    headerData.forEach(function(cellData) {
         var cell = document.createElement('th');
         cell.appendChild(document.createTextNode(cellData));
         row.appendChild(cell);
@@ -164,9 +163,9 @@ function createTable(data, cookieDiv) {
 
     // convert the rest of the array into the HTML data
     var tableData = data.slice(1, data.length);
-    tableData.forEach(function (rowData) {
+    tableData.forEach(function(rowData) {
         var row = document.createElement('tr');
-        rowData.forEach(function (cellData) {
+        rowData.forEach(function(cellData) {
             var cell = document.createElement('td');
             cell.appendChild(document.createTextNode(cellData));
             row.appendChild(cell);
@@ -183,11 +182,14 @@ function createTable(data, cookieDiv) {
 
 function initializeDataTable() {
     var cookieTable = $('#cookieTable').DataTable({
-        "lengthMenu": [[15, 25, 100, -1], [15, 25, 100, "All"]]
+        "lengthMenu": [
+            [15, 25, 100, -1],
+            [15, 25, 100, "All"]
+        ]
     });
 
     // allows a single row to be selected
-    $('#cookieTable tbody').on('click', 'tr', function () {
+    $('#cookieTable tbody').on('click', 'tr', function() {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
         } else {
@@ -198,15 +200,15 @@ function initializeDataTable() {
     });
 
     // button removes selected rows
-    $('#buttonRemoveRow').click(function () {
+    $('#buttonRemoveRow').click(function() {
 
         // convert html into an array. adapted from http://stackoverflow.com/a/9579792
         var selectedCookies = [];
-        cookieTable.$('tr.selected').each(function () {
+        cookieTable.$('tr.selected').each(function() {
             var arrayOfThisRow = [];
             var tableData = $(this).find('td');
             if (tableData.length > 0) {
-                tableData.each(function () {
+                tableData.each(function() {
                     arrayOfThisRow.push($(this).text());
                 });
                 selectedCookies.push(arrayOfThisRow);
@@ -223,67 +225,12 @@ function initializeDataTable() {
     $('#cookieTable').dataTable();
 }
 
-
 function createGraph(data) {
     var points = [];
     var domains = {};
-    for (var i = 0; i < data.length; i++) {
-        var cook = data[i];
-        var key = cook.domain.concat(cook.name);
-        if (!(cook.domain in domains)) {
-            var parent = {
-                "data": {
-                    "id": cook.domain,
-                    "weight": 2,
-                    "name": cook.domain
-                },
-                "group": "nodes",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "",
-                "NodeType": "Cheese"
-            };
-            points.push(parent);
-            domains[cook.domain] = true;
-        };
-        var node = {
-            "data": {
-                "id": key,
-                "class": cook.domain,
-                "weight": 1,
-                "name": cook.name
-            }, //removed ,parent: cook.domain
-
-            "group": "nodes",
-            "removed": false,
-            "selected": false,
-            "selectable": true,
-            "locked": false,
-            "grabbable": true,
-            "classes": "",
-            "NodeType": "WhiteWine"
-        };
-
-        var edgeObj = {
-            data: {
-                "id": key.concat("parentedge"),
-                "class": cook.domain,
-                source: cook.domain,
-                target: key
-            }
-        };
-        points.push(node);
-        points.push(edgeObj);
-    }
-
     var cy = cytoscape({
 
         container: document.getElementById('cy'), // container to render in
-
-        elements: points,
 
         style: [ // the stylesheet for the graph
             {
@@ -292,7 +239,7 @@ function createGraph(data) {
                     'background-color': '#666',
                     'label': 'data(name)'
                 }
-        },
+            },
 
             {
                 selector: 'edge',
@@ -302,43 +249,22 @@ function createGraph(data) {
                     'target-arrow-color': '#ccc',
                     'target-arrow-shape': 'triangle'
                 }
-        }
-      ],
-        layout: {
-            name: 'concentric',
-            concentric: function (node) {
-                //            console.log(node.data("weight"));
-                return node.data("weight");
-            },
-            levelWidth: function () {
-                return 1;
             }
-        }
+        ],
 
-
-
-        // var a = cy.$('#a'); // assume a compound node
-
-        // // the neighbourhood of `a` contains directly connected elements
-        // var directlyConnected = a.neighborhood();
-
-        // // you may want everything connected to its descendants instead
-        // // because the descendants "belong" to `a`
-        // var indirectlyConnected = a.add( a.descendants() ).neighborhood();
     });
-    cy.on('select', 'node', function (e) {
+    cy.on('select', 'node', function(e) {
         var node = this;
         highlight(node);
     });
-
-    cy.on('unselect', 'node', function (e) {
+    cy.on('unselect', 'node', function(e) {
         var node = this;
         clear();
     });
 
     function clear() {
-        cy.batch(function () {
-            cy.$('.highlighted').forEach(function (n) {
+        cy.batch(function() {
+            cy.$('.highlighted').forEach(function(n) {
                 n.animate({
                     position: n.data('orgPos')
                 });
@@ -354,7 +280,7 @@ function createGraph(data) {
     function highlight(node) {
         console.log(1);
         var nhood = node.closedNeighborhood();
-        cy.batch(function () {
+        cy.batch(function() {
             cy.elements().not(nhood).removeClass('highlighted').addClass('faded');
             nhood.removeClass('faded').addClass('highlighted');
 
@@ -369,7 +295,7 @@ function createGraph(data) {
                 }
             }, {
                 duration: layoutDuration
-            }).delay(layoutDuration, function () {
+            }).delay(layoutDuration, function() {
                 nhood.layout({
                     name: 'concentric',
                     padding: layoutPadding,
@@ -382,26 +308,121 @@ function createGraph(data) {
                         y2: npos.y + w / 2
                     },
                     fit: true,
-                    concentric: function (n) {
+                    concentric: function(n) {
                         if (node.id() === n.id()) {
                             return 2;
                         } else {
                             return 1;
                         }
                     },
-                    levelWidth: function () {
+                    levelWidth: function() {
                         return 1;
                     }
                 });
             });
         });
     };
+    for (var i = 0; i < data.length; i++) {
+        var cook = data[i];
+        var key = cook.domain.concat(cook.name);
+        getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
+        if (!(cook.domain in domains)) {
+            var parent = {
+                "data": {
+                    "id": cook.domain,
+                    "weight": 2,
+                    "name": cook.domain
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "",
+                "NodeType": "Domain"
+            };
+            points.push(parent);
+            domains[cook.domain] = true;
+        }
+        var node = {
+            "data": {
+                "id": key,
+                "class": cook.domain,
+                "weight": 1,
+                "name": cook.name
+            }, //removed ,parent: cook.domain
 
+            "group": "nodes",
+            "removed": false,
+            "selected": false,
+            "selectable": true,
+            "locked": false,
+            "grabbable": true,
+            "classes": "",
+            "NodeType": "Cookie"
+        };
+        var edgeObj = {
+            data: {
+                "id": key.concat("parentedge"),
+                "class": cook.domain,
+                source: cook.domain,
+                target: key
+            }
+        };
+        points.push(node);
+        points.push(edgeObj);
+    }
+    cy.add(points);
+    var layout = {
+        name: 'concentric',
+        concentric: function(node) {
+            //            console.log(node.data("weight"));
+            return node.data("weight");
+        },
+        levelWidth: function() {
+            return 1;
+        }
+    }
+    cy.layout(layout);
+
+    function createThirdPartyEdges(cook, domains, cy, domainsAdded) {
+        if (Object.keys(domains).length < 1) {
+            return;
+        }
+        var edges = [];
+        for (var dom in domains) {
+            if (dom != cook.domain && domainsAdded[dom]) {
+                var edgeObj = {
+                    data: {
+                        "id": cook.domain.concat("-edge-").concat(dom),
+                        "class": cook.domain,
+                        source: cook.domain,
+                        target: dom
+                    }
+                };
+                edges.push(edgeObj);
+            } else if (!domainsAdded[dom]) {
+                console.log("not valid cookie dom".concat(dom));
+            }
+        }
+        cy.add(edges);
+        cy.layout(layout);
+    }
+}
+
+function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
+    chrome.storage.local.get(key, function(obj) {
+        if (typeof obj === 'undefined' || typeof obj[key] === 'undefined') {
+            return callback(cookie, {});
+        }
+        return callback(cookie, obj[key]['domains'], cy, domainsAdded);
+    });
 }
 
 function removeAllCookies() {
     chrome.cookies.getAll({},
-        function (cookies) {
+        function(cookies) {
             var startNum = cookies.length;
             for (var j = 0; j < cookies.length; j++) {
                 var cookie = cookies[j];
@@ -436,7 +457,6 @@ function removeAllCookies() {
                         name: cookie.name
                     });
                 }
-
             }
             var endNum = cookies.length - startNum;
             console.log(endNum);
@@ -451,7 +471,7 @@ function openWebapp() {
     });
 };
 
-$(function () {
+$(function() {
     $("#DeleteAll").click(removeAllCookies);
     getAllCookies();
     $("#WebApp").click(openWebapp);
@@ -481,7 +501,7 @@ function init() {
 
     for (var id in tabLinks) {
         tabLinks[id].onclick = showTab;
-        tabLinks[id].onfocus = function () {
+        tabLinks[id].onfocus = function() {
             this.blur()
         };
         if (i == 0) tabLinks[id].className = 'selected';
