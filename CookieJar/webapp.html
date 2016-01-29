@@ -27,7 +27,6 @@
 <body>
     <h1>Welcome to CookieJar</h1>
 
-
 <ul id="tabs">
   <li><a href="#graph">Cookies in a Graph!</a></li>
   <li><a href="#table">Cookies in a Table!</a></li>
@@ -44,6 +43,8 @@
 
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
+    <button id="reset">Reset View</button>
+    <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
 	<div id="cy" z-index=2></div>
 </div>
 

@@ -1,12 +1,7 @@
-/* 
-modifications made to removeSelectedCookies:
-    -now requires an array of selected cookies
-    -no longer uses check boxes
-*/
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
         function(cookies) {
-            console.log("trying to remove:" + selected[0]);
+            console.log('trying to remove:' + selected[0]);
 
             for (var i = 0; i < selected.length; i++) {
                 for (var j = 0; j < cookies.length; j++) {
@@ -15,7 +10,7 @@ function removeSelectedCookies(selected) {
                     curSelected = selected[i];
                     if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
                         chrome.cookies.remove({
-                            url: "http" + ((cookie.secure) ? "s" : "") + "://" + cookie.domain,
+                            url: 'http' + ((cookie.secure) ? 's' : '') + '://' + cookie.domain,
                             name: cookie.name
                         });
                         console.log('cookie removed');
@@ -35,31 +30,45 @@ function getAllCookies() {
     chrome.cookies.getAll({}, function(cookies) {
         var outputCookies = [];
         var newCookies = [];
-        outputCookies.push(["Name", "Domain"]);
+        outputCookies.push(['Name', 'Domain']);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name);
             //put cookies into table format
             outputCookies.push([cook.name, cook.domain]);
         }
-        $(".count").append("<p>Number of total cookies: " + cookies.length + "</p>");
-        createPopupTable(outputCookies, ".listCookies")
-        createTable(outputCookies, ".outputCookies");
+        $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
+        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px'])
+        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%']);
         createGraph(cookies);
     });
 };
 
+/*
+Creates the table in both the webapp and the popup. It converts array, called data,
+into an HTML table.
 
-function createPopupTable(data, cookieDiv) {
+options is an array that can be expanded to include additional table/style choices
+code adapted from http://stackoverflow.com/a/15164958
+*/
+function createTable(data, cookieDiv, options) {
+    tableName = options[0];
+    tableWidth = options[1];
+    
+    // we only want the init function to happen once
+    if (tableName == 'cookieTableWebapp') {
+        init();
+    }
+    
     var table = document.createElement('table'),
         tableBody = document.createElement('tbody'),
         tableHeader = document.createElement('thead');
 
     // DataTable attributes
-    table.setAttribute("class", "display compact");
-    table.setAttribute("id", "cookieTablePopup");
-    table.setAttribute("width", "500px");
-    table.setAttribute("cellspacing", "0");
+    table.setAttribute('class', 'display compact');
+    table.setAttribute('id', tableName);
+    table.setAttribute('width', tableWidth);
+    table.setAttribute('cellspacing', '0');
 
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
@@ -87,114 +96,28 @@ function createPopupTable(data, cookieDiv) {
     table.appendChild(tableBody);
 
     $(cookieDiv).append(table);
-    initializePopupDataTable();
+    initializeDataTable(tableName);
 };
 
-function initializePopupDataTable() {
-    var cookieTable = $('#cookieTablePopup').DataTable({
-        "lengthMenu": [
-            [10, 20, 50, -1],
-            [10, 20, 50, "All"]
-        ]
-    });
-
-    // allows a single row to be selected
-    $('#cookieTablePopup tbody').on('click', 'tr', function() {
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-        } else {
-            cookieTable.$('tr.selected'); //.removeClass('selected');
-            //            cookieTable.$('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
-        }
-    });
-
-    // button removes selected rows
-    $('#buttonRemoveRow').click(function() {
-
-        // convert html into an array. adapted from http://stackoverflow.com/a/9579792
-        var selectedCookies = [];
-        cookieTable.$('tr.selected').each(function() {
-            var arrayOfThisRow = [];
-            var tableData = $(this).find('td');
-            if (tableData.length > 0) {
-                tableData.each(function() {
-                    arrayOfThisRow.push($(this).text());
-                });
-                selectedCookies.push(arrayOfThisRow);
-            }
-            // removes all selected rows from table
-            // PROBLEM:  also removes rows of cookies that weren't actually deleted
-            cookieTable.row('tr.selected').remove().draw(false);
-        });
-        console.log(selectedCookies);
-
-        $(cookieTable.$('tr.selected')).remove();
-        removeSelectedCookies(selectedCookies);
-    });
-    $('#cookieTablePopup').dataTable();
-}
-
-
-
-
-// adapted from http://stackoverflow.com/a/15164958
-function createTable(data, cookieDiv) {
-    init();
-    var table = document.createElement('table'),
-        tableBody = document.createElement('tbody'),
-        tableHeader = document.createElement('thead');
-
-    // DataTable attributes
-    table.setAttribute("class", "display compact");
-    table.setAttribute("id", "cookieTable");
-    table.setAttribute("width", "100%");
-    table.setAttribute("cellspacing", "0");
-
-    // convert first array in array to the HTML header row
-    var headerData = data.slice(0, 1)[0];
-    var row = document.createElement('tr');
-    headerData.forEach(function(cellData) {
-        var cell = document.createElement('th');
-        cell.appendChild(document.createTextNode(cellData));
-        row.appendChild(cell);
-    });
-    tableHeader.appendChild(row);
-
-    // convert the rest of the array into the HTML data
-    var tableData = data.slice(1, data.length);
-    tableData.forEach(function(rowData) {
-        var row = document.createElement('tr');
-        rowData.forEach(function(cellData) {
-            var cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(cellData));
-            row.appendChild(cell);
-        });
-        tableBody.appendChild(row);
-    });
-
-    table.appendChild(tableHeader);
-    table.appendChild(tableBody);
-
-    $(cookieDiv).append(table);
-    initializeDataTable();
-};
-
-function initializeDataTable() {
-    var cookieTable = $('#cookieTable').DataTable({
-        "lengthMenu": [
+/*
+As opposed to createTable, this function incorporates DataTables functionality
+to finalize the creation of the table. It adds the ability to select and
+delete any number of rows where each row represents a cookie.
+*/
+function initializeDataTable(tableName) {
+    var cookieTable = $('#' + tableName).DataTable({
+        'lengthMenu': [
             [15, 25, 100, -1],
-            [15, 25, 100, "All"]
+            [15, 25, 100, 'All']
         ]
     });
 
     // allows a single row to be selected
-    $('#cookieTable tbody').on('click', 'tr', function() {
+    $('#' + tableName + ' tbody').on('click', 'tr', function() {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
         } else {
             cookieTable.$('tr.selected'); //.removeClass('selected');
-            //            cookieTable.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
         }
     });
@@ -215,6 +138,7 @@ function initializeDataTable() {
             }
             // removes all selected rows from table
             // PROBLEM:  also removes rows of cookies that weren't actually deleted
+            // ^ this is something we will have to decide:  do we show these or not?
             cookieTable.row('tr.selected').remove().draw(false);
         });
         console.log(selectedCookies);
@@ -222,10 +146,11 @@ function initializeDataTable() {
         $(cookieTable.$('tr.selected')).remove();
         removeSelectedCookies(selectedCookies);
     });
-    $('#cookieTable').dataTable();
+    $('#' + tableName).dataTable();
 }
 
 function createGraph(data) {
+    // points array represents all of the nodes displayed
     var points = [];
     var domains = {};
     var cy = cytoscape({
@@ -236,8 +161,10 @@ function createGraph(data) {
             {
                 selector: 'node',
                 style: {
-                    'background-color': '#666',
-                    'label': 'data(name)'
+                    'background-color': 'data(color)',
+                    'label': 'data(name)',
+                    'background-fit': 'cover',
+                    'background-image': 'data(image)'
                 }
             },
 
@@ -245,9 +172,10 @@ function createGraph(data) {
                 selector: 'edge',
                 style: {
                     'width': 3,
-                    'line-color': '#ccc',
-                    'target-arrow-color': '#ccc',
-                    'target-arrow-shape': 'triangle'
+                    'line-color': 'data(color)',
+                    'target-arrow-color': 'data(color)',
+                    'target-arrow-shape': 'triangle',
+                    'line-style': 'data(lineStyle)'
                 }
             }
         ],
@@ -328,46 +256,52 @@ function createGraph(data) {
         getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
         if (!(cook.domain in domains)) {
             var parent = {
-                "data": {
-                    "id": cook.domain,
-                    "weight": 2,
-                    "name": cook.domain
+                'data': {
+                    'id': cook.domain,
+                    'weight': 2,
+                    'name': cook.domain,
+                    'color': '#666',
+                    'image': 'https://'
                 },
-                "group": "nodes",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "",
-                "NodeType": "Domain"
+                'group': 'nodes',
+                'removed': false,
+                'selected': false,
+                'selectable': true,
+                'locked': false,
+                'grabbable': true,
+                'classes': '',
+                'NodeType': 'Domain'
             };
             points.push(parent);
             domains[cook.domain] = true;
         }
         var node = {
-            "data": {
-                "id": key,
-                "class": cook.domain,
-                "weight": 1,
-                "name": cook.name
+            'data': {
+                'id': key,
+                'class': cook.domain,
+                'weight': 1,
+                'name': cook.name,
+                'color': '#666',
+                'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png'
             }, //removed ,parent: cook.domain
 
-            "group": "nodes",
-            "removed": false,
-            "selected": false,
-            "selectable": true,
-            "locked": false,
-            "grabbable": true,
-            "classes": "",
-            "NodeType": "Cookie"
+            'group': 'nodes',
+            'removed': false,
+            'selected': false,
+            'selectable': true,
+            'locked': false,
+            'grabbable': true,
+            'classes': '',
+            'NodeType': 'Cookie'
         };
         var edgeObj = {
             data: {
-                "id": key.concat("parentedge"),
-                "class": cook.domain,
+                'id': key.concat('parentedge'),
+                'class': cook.domain,
                 source: cook.domain,
-                target: key
+                target: key,
+                'color': '#ccc',
+                'lineStyle': 'solid'
             }
         };
         points.push(node);
@@ -377,13 +311,22 @@ function createGraph(data) {
     var layout = {
         name: 'concentric',
         concentric: function(node) {
-            //            console.log(node.data("weight"));
-            return node.data("weight");
+            //            console.log(node.data('weight'));
+            return node.data('weight');
         },
         levelWidth: function() {
             return 1;
         }
-    }
+    };
+    $('#reset').on('click', function(){
+        cy.animate({
+            fit: {
+                eles: cy.elements(),
+                padding: layoutPadding
+            },
+            duration: layoutDuration
+        });
+    });
     cy.layout(layout);
 
     function createThirdPartyEdges(cook, domains, cy, domainsAdded) {
@@ -395,15 +338,17 @@ function createGraph(data) {
             if (dom != cook.domain && domainsAdded[dom]) {
                 var edgeObj = {
                     data: {
-                        "id": cook.domain.concat("-edge-").concat(dom),
-                        "class": cook.domain,
+                        'id': cook.domain.concat('-edge-').concat(dom),
+                        'class': cook.domain,
                         source: cook.domain,
-                        target: dom
+                        target: dom,
+                        'color': '#000000',
+                        'lineStyle': 'dashed'
                     }
                 };
                 edges.push(edgeObj);
             } else if (!domainsAdded[dom]) {
-                console.log("not valid cookie dom".concat(dom));
+                console.log('not valid cookie dom'.concat(dom));
             }
         }
         cy.add(edges);
@@ -427,14 +372,14 @@ function removeAllCookies() {
             for (var j = 0; j < cookies.length; j++) {
                 var cookie = cookies[j];
 
-                if (cookie.domain.charAt(0) != ".") {
+                if (cookie.domain.charAt(0) != '.') {
                     console.log(cookie.domain);
                     chrome.cookies.remove({
-                        url: "http://" + cookie.domain,
+                        url: 'http://' + cookie.domain,
                         name: cookie.name
                     });
                     chrome.cookies.remove({
-                        url: "https://" + cookie.domain,
+                        url: 'https://' + cookie.domain,
                         name: cookie.name
                     });
                     chrome.cookies.remove({
@@ -445,11 +390,11 @@ function removeAllCookies() {
                     console.log(cookie.domain);
                     cookie.domain = cookie.domain.substring(1, cookie.domain.length)
                     chrome.cookies.remove({
-                        url: "http://" + cookie.domain,
+                        url: 'http://' + cookie.domain,
                         name: cookie.name
                     });
                     chrome.cookies.remove({
-                        url: "https://" + cookie.domain,
+                        url: 'https://' + cookie.domain,
                         name: cookie.name
                     });
                     chrome.cookies.remove({
@@ -465,16 +410,16 @@ function removeAllCookies() {
 };
 
 function openWebapp() {
-    var newURL = "/webapp.html";
+    var newURL = '/webapp.html';
     chrome.tabs.create({
         url: newURL
     });
 };
 
 $(function() {
-    $("#DeleteAll").click(removeAllCookies);
+    $('#DeleteAll').click(removeAllCookies);
     getAllCookies();
-    $("#WebApp").click(openWebapp);
+    $('#WebApp').click(openWebapp);
 });
 
 
@@ -486,8 +431,8 @@ function init() {
     // Grab the tab links and content divs from the page
     var tabListItems = document.getElementById('tabs').childNodes;
     for (var i = 0; i < tabListItems.length; i++) {
-        console.log("test");
-        if (tabListItems[i].nodeName == "LI") {
+        console.log('test');
+        if (tabListItems[i].nodeName == 'LI') {
             var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
             var id = getHash(tabLink.getAttribute('href'));
             tabLinks[id] = tabLink;
