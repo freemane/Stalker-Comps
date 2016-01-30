@@ -164,7 +164,9 @@ function createGraph(data) {
                     'background-color': 'data(color)',
                     'label': 'data(name)',
                     'background-fit': 'cover',
-                    'background-image': 'data(image)'
+                    'background-image': 'data(image)',
+                    'width': 'data(nodeWidth)',
+                    'height': 'data(nodeHeight)'
                 }
             },
 
@@ -189,6 +191,7 @@ function createGraph(data) {
         var node = this;
         clear();
     });
+   
 
     function clear() {
         cy.batch(function() {
@@ -206,7 +209,6 @@ function createGraph(data) {
     var layoutDuration = 500;
 
     function highlight(node) {
-        console.log(1);
         var nhood = node.closedNeighborhood();
         cy.batch(function() {
             cy.elements().not(nhood).removeClass('highlighted').addClass('faded');
@@ -261,7 +263,9 @@ function createGraph(data) {
                     'weight': 2,
                     'name': cook.domain,
                     'color': '#666',
-                    'image': 'https://'
+                    'image': 'https://',
+                    'nodeWidth': '100',
+                    'nodeHeight': '100'
                 },
                 'group': 'nodes',
                 'removed': false,
@@ -282,7 +286,9 @@ function createGraph(data) {
                 'weight': 1,
                 'name': cook.name,
                 'color': '#666',
-                'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png'
+                'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png',
+                'nodeWidth': '25',
+                'nodeHeight': '25'
             }, //removed ,parent: cook.domain
 
             'group': 'nodes',
@@ -301,7 +307,8 @@ function createGraph(data) {
                 source: cook.domain,
                 target: key,
                 'color': '#ccc',
-                'lineStyle': 'solid'
+                'lineStyle': 'solid',
+                'weight': '2'
             }
         };
         points.push(node);
@@ -318,7 +325,10 @@ function createGraph(data) {
             return 1;
         }
     };
-    $('#reset').on('click', function(){
+    
+    cy.layout(layout);
+    
+    $('#reset').on('click', function() {
         cy.animate({
             fit: {
                 eles: cy.elements(),
@@ -326,8 +336,71 @@ function createGraph(data) {
             },
             duration: layoutDuration
         });
+        cy.layout(layout);
     });
-    cy.layout(layout);
+    
+    // zooms in on the most recent cookie centered on its domain
+    $('#mostRecent').on('click', function() {
+        cy.layout(layout);
+        var node = cy.nodes()[cy.nodes().length-1];
+        highlight(node);
+    });
+    
+    // zooms in on the domain with the most cookies
+    $('#mostCookies').on('click', function() {
+        cy.layout(layout);
+        highlight(getNodeWithMostEdges(2));
+    });
+    
+    // zooms in on the domain with the most third party connections
+    $('#mostThirdParty').on('click', function() {
+        cy.layout(layout);
+        highlight(getNodeWithMostEdges(1));
+    });    
+    
+    // zooms in on the domain with the most connections (edges)
+    $('#mostConnections').on('click', function() {
+        cy.layout(layout);
+        var maxNeighbors = 0;
+        var biggestNode;
+        cy.batch(function() {
+            cy.nodes().forEach(function(n) {
+                if (n.closedNeighborhood().length > maxNeighbors) {
+                    maxNeighbors = n.closedNeighborhood().length;
+                    biggestNode = n;
+                }
+            });
+
+        });        
+        highlight(biggestNode);
+    });    
+    
+    /*
+    This function finds and returns the node with the most edges of the specified 
+    weight.
+    
+    As of writing, a weight of 2 represents edges between domains and cookies and
+    a weight of 1 represents third party connections.
+    */
+    function getNodeWithMostEdges(edgeWeight) {
+        var maxNeighbors = 0;
+        var biggestNode;
+        cy.batch(function() {
+            cy.nodes().forEach(function(n) {
+                var cookieEdges = 0;
+                n.closedNeighborhood().edges().forEach(function(edge) {
+                    if (edge.data('weight') == edgeWeight){
+                        cookieEdges ++;
+                    }
+                });
+                if ( cookieEdges > maxNeighbors) {
+                    maxNeighbors = cookieEdges;
+                    biggestNode = n;
+                }                
+            });
+        });      
+        return biggestNode;
+    }
 
     function createThirdPartyEdges(cook, domains, cy, domainsAdded) {
         if (Object.keys(domains).length < 1) {
@@ -343,7 +416,8 @@ function createGraph(data) {
                         source: cook.domain,
                         target: dom,
                         'color': '#000000',
-                        'lineStyle': 'dashed'
+                        'lineStyle': 'dashed',
+                        'weight': '1'
                     }
                 };
                 edges.push(edgeObj);
