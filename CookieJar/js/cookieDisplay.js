@@ -38,8 +38,14 @@ function getAllCookies() {
             outputCookies.push([cook.name, cook.domain]);
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
-        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px'])
-        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%']);
+        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px', [
+            [10, 20, 50, -1],
+            [10, 20, 50, 'All']
+        ]])
+        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%', [
+            [15, 25, 100, -1],
+            [15, 25, 100, 'All']
+        ]]);
         createGraph(cookies);
     });
 };
@@ -54,6 +60,7 @@ code adapted from http://stackoverflow.com/a/15164958
 function createTable(data, cookieDiv, options) {
     tableName = options[0];
     tableWidth = options[1];
+    lengthOption = options[2];
     
     // we only want the init function to happen once
     if (tableName == 'cookieTableWebapp') {
@@ -96,7 +103,7 @@ function createTable(data, cookieDiv, options) {
     table.appendChild(tableBody);
 
     $(cookieDiv).append(table);
-    initializeDataTable(tableName);
+    initializeDataTable(tableName, lengthOption);
 };
 
 /*
@@ -104,12 +111,9 @@ As opposed to createTable, this function incorporates DataTables functionality
 to finalize the creation of the table. It adds the ability to select and
 delete any number of rows where each row represents a cookie.
 */
-function initializeDataTable(tableName) {
+function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
-        'lengthMenu': [
-            [15, 25, 100, -1],
-            [15, 25, 100, 'All']
-        ]
+        'lengthMenu': lengthOption
     });
 
     // allows a single row to be selected
