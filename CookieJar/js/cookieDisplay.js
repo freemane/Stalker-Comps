@@ -22,6 +22,47 @@ function removeSelectedCookies(selected) {
     //    location.reload();
 };
 
+//for shift-click multiple line functionality
+
+var myDeselectList = [];
+var mySelectList = [];
+//var selectedCookies = [];
+
+function mySelectEventHandler(nodes) {
+    if (myDeselectList) {
+        var nodeList = myDeselectList;
+        myDeselectList = null;
+        this.fnDeselect(nodeList);
+        console.log("deselectlist");
+    }
+    if (mySelectList) {
+        var nodeList = mySelectList;
+        mySelectList = null;
+        this.fnSelect(nodeList);
+        console.log("selectlist");
+        for (var i = 0; i < 2; i++) {
+            selected[selected.length] = mySelectList[i];
+        }
+    }
+}
+ 
+function myGetRangeOfRows(oDataTable, fromNode, toNode) {
+    var
+        fromPos = oDataTable.fnGetPosition(fromNode),
+        toPos = oDataTable.fnGetPosition(toNode);
+        oSettings = oDataTable.fnSettings(),
+        fromIndex = $.inArray(fromPos, oSettings.aiDisplay),
+        toIndex = $.inArray(toPos, oSettings.aiDisplay),
+        result = [];
+ 
+    if (fromIndex >= 0 && toIndex >= 0 && toIndex != fromIndex) {
+        for (var i=Math.min(fromIndex,toIndex); i < Math.max(fromIndex,toIndex); i++) {
+            var dataIndex = oSettings.aiDisplay[i];
+            result.push(oSettings.aoData[dataIndex].nTr);
+        }
+    }
+    return result.length>0?result:null;
+}
 /*
 In addition to getting all cookies, also creates an array (outputCookies) with data 
 for the HTML table.
@@ -38,14 +79,8 @@ function getAllCookies() {
             outputCookies.push([cook.name, cook.domain]);
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
-        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px', [
-            [10, 20, 50, -1],
-            [10, 20, 50, 'All']
-        ]])
-        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%', [
-            [15, 25, 100, -1],
-            [15, 25, 100, 'All']
-        ]]);
+        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px', [[10, 20, 50, -1],[10, 20, 50, 'All']]]);
+        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%', [[15, 25, 100, -1],[15, 25, 100, 'All']]]);
         createGraph(cookies);
     });
 };
@@ -113,7 +148,51 @@ delete any number of rows where each row represents a cookie.
 */
 function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
-        'lengthMenu': lengthOption
+        'lengthMenu': lengthOption,
+        "tableTools": {
+            "sRowSelect": "multi",
+            "fnPreRowSelect": function(e, nodes, isSelect) {
+                if (e) {
+                    mySelectList = myDeselectList = null;
+                    if (e.shiftKey && nodes.length == 1) {
+                        myDeselectList = this.fnGetSelected();
+                        mySelectList = myGetRangeOfRows(cookieTable, myLastSelection, nodes[0]);
+                    } else {
+                        myLastSelection = nodes[0];
+                        if (!e.ctrlKey) {
+                            myDeselectList = this.fnGetSelected();
+                            if (!isSelect) {
+                                mySelectList = nodes;
+                            }
+                        }
+                    }
+                    console.log(myDeselectList);
+                    console.log(mySelectList);
+                }
+                return true;
+            },
+            "fnRowSelected": function(nodes) {
+                if (myDeselectList) {
+                    var nodeList = myDeselectList;
+                    myDeselectList = null;
+                    this.fnDeselect(nodeList);
+                }
+            },
+            "fnRowDeselected": function(nodes) {
+                if (myDeselectList) {
+                    var nodeList = myDeselectList;
+                    myDeselectList = null;
+                    this.fnDeselect(nodeList);
+                }
+                if (mySelectList) {
+                    var nodeList = mySelectList;
+                    mySelectList = null;
+                    this.fnSelect (nodeList);
+                }
+            },
+            "fnRowSelected": mySelectEventHandler,
+            "fnRowDeselected": mySelectEventHandler
+        }
     });
 
     // allows a single row to be selected
@@ -130,7 +209,7 @@ function initializeDataTable(tableName, lengthOption) {
     $('#buttonRemoveRow').click(function() {
 
         // convert html into an array. adapted from http://stackoverflow.com/a/9579792
-        var selectedCookies = [];
+//        var selectedCookies = [];
         cookieTable.$('tr.selected').each(function() {
             var arrayOfThisRow = [];
             var tableData = $(this).find('td');
@@ -138,17 +217,17 @@ function initializeDataTable(tableName, lengthOption) {
                 tableData.each(function() {
                     arrayOfThisRow.push($(this).text());
                 });
-                selectedCookies.push(arrayOfThisRow);
+                mySelectList.push(arrayOfThisRow);
             }
             // removes all selected rows from table
             // PROBLEM:  also removes rows of cookies that weren't actually deleted
             // ^ this is something we will have to decide:  do we show these or not?
             cookieTable.row('tr.selected').remove().draw(false);
         });
-        console.log(selectedCookies);
+        console.log(mySelectList);
 
         $(cookieTable.$('tr.selected')).remove();
-        removeSelectedCookies(selectedCookies);
+        removeSelectedCookies(mySelectList);
     });
     $('#' + tableName).dataTable();
 }
@@ -426,7 +505,7 @@ function createGraph(data) {
                 };
                 edges.push(edgeObj);
             } else if (!domainsAdded[dom]) {
-                console.log('not valid cookie dom'.concat(dom));
+                //console.log('not valid cookie dom'.concat(dom));
             }
         }
         cy.add(edges);
