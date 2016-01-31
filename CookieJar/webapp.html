@@ -18,7 +18,8 @@
 <!--Cytoscape-->
 <script type="text/javascript" src="./cytoscape.js-2.5.4/cytoscape.min.js"></script>
 <link rel="stylesheet" type="text/css" href="./css/webapp.css">
-
+<script type="text/javascript" src="./js/typeahead.bundle.min.js"></script>
+    
 <!--  For displaying the cookies  -->
 <script type="text/javascript" src="./js/cookieDisplay.js"></script>
 
@@ -43,12 +44,23 @@
 
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
+    <div id="loading">
+        <span class="fa fa-refresh fa-spin"></span>
+    </div>    
     <button id="reset">Reset View</button>
     <button id="mostRecent">Newest Cookie</button>
     <button id="mostCookies">Most Cookies</button>
     <button id="mostThirdParty">Most Third Party Connections</button>
     <button id="mostConnections">Most Connections</button>
     <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
+    <p>Filter:</p>
+    <div id="filters">
+        <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br />
+        <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br />
+    </div>
+    <div id="search-wrapper">
+        <input type="text" class="form-control" id="search" autofocus placeholder="Search">
+    </div>    
 	<div id="cy" z-index=2></div>
 </div>
 
