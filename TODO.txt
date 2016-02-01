@@ -15,7 +15,7 @@ restructuring
 parsing http headers??
 zombie cookies?
 	can we even identify them
-
+    -- no
 popup
 	filters
 		only relevant(how is that defined?) cookies

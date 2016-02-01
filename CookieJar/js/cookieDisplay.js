@@ -9,21 +9,38 @@ function removeSelectedCookies(selected) {
 
                     curSelected = selected[i];
                     if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
-                        chrome.cookies.remove({
-                            url: 'http' + ((cookie.secure) ? 's' : '') + '://' + cookie.domain,
-                            name: cookie.name
-                        });
+                      var url = "http" + ((cookie.secure == true) ? "s" : "")+"://"+cookie.domain;
+                        deleteCookie(url,cookie.name,cookie.storeId,cookie.value,cookie.secure);
                         console.log('cookie removed');
                     }
                 }
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-    //    location.reload();
+        location.reload();
 };
 
+function deleteCookie(url,name,store, value,secure,callback){
+	//console.log("Delete URL: "+url+" | NAME: "+name+" |");
+    url = "http" + ((secure == true) ? "s" : "")+"://"+url;
+	chrome.cookies.remove({
+		'url':url,
+		'name':name,
+		'storeId':store
+	}, function(details) {
+		if(typeof callback === "undefined")
+			return;
+		if(details=="null" || details===undefined || details==="undefined") {
+			callback(false);
+		} else {
+			callback(true);
+		}
+	});
+  document.cookie = name+"="+value+";expires="+new Date(0).toUTCString()+";";
+}
+
 /*
-In addition to getting all cookies, also creates an array (outputCookies) with data 
+In addition to getting all cookies, also creates an array (outputCookies) with data
 for the HTML table.
 */
 function getAllCookies() {
@@ -38,9 +55,13 @@ function getAllCookies() {
         outputCookies.push(['Name', 'Domain']);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
-            var key = cook.domain.concat(cook.name);
-            //put cookies into table format
-            outputCookies.push([cook.name, cook.domain]);
+            //cook.expirationDate = 112233445566;
+            if(cook.expirationDate != 112233445566) {
+              var key = cook.domain.concat(cook.name);
+              //put cookies into table format
+              outputCookies.push([cook.name, cook.domain]);
+            }
+
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
         createTable(outputCookies, '.listCookies', ['cookieTablePopup', '500px', [
@@ -367,9 +388,9 @@ function createGraph(array) {
     });
 
     /*
-    This function finds and returns the node with the most edges of the specified 
+    This function finds and returns the node with the most edges of the specified
     weight.
-    
+
     As of writing, a weight of 2 represents edges between domains and cookies and
     a weight of 1 represents third party connections.
     */
@@ -412,9 +433,9 @@ function createGraph(array) {
                     }
                 };
                 edges.push(edgeObj);
-                console.log('3rd party cookie');
+                //console.log('3rd party cookie');
             } else if (!domainsAdded[dom]) {
-                console.log('not valid cookie dom'.concat(dom));
+                //console.log('not valid cookie dom'.concat(dom));
             }
         }
         cy.add(edges);
@@ -462,10 +483,10 @@ function createGraph(array) {
             var res = cy.nodes().stdFilter(anyFieldMatches).sort(sortByName).map(getData);
             cb(res);
         },
-        display: 'name',
+        display: 'name'
 //        templates: {
 //          suggestion: infoTemplate
-//        }        
+//        }
     }).on('typeahead:selected', function (e, entry, dataset) {
         var n = cy.getElementById(entry.id);
         n.select();
@@ -487,7 +508,7 @@ function createGraph(array) {
 
                 var cType = n.data('type');
                 console.log(cType + ' ' + !domain + ' ' + !cookie);
-                // 
+                //
                 if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie)) {
                     console.log('filter call');
                     filter();
@@ -515,34 +536,10 @@ function removeAllCookies() {
                 var cookie = cookies[j];
 
                 if (cookie.domain.charAt(0) != '.') {
-                    console.log(cookie.domain);
-                    chrome.cookies.remove({
-                        url: 'http://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: 'https://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: cookie.domain,
-                        name: cookie.name
-                    });
+                      deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
                 } else {
-                    console.log(cookie.domain);
                     cookie.domain = cookie.domain.substring(1, cookie.domain.length)
-                    chrome.cookies.remove({
-                        url: 'http://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: 'https://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: cookie.domain,
-                        name: cookie.name
-                    });
+                    deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
                 }
             }
             var endNum = cookies.length - startNum;
