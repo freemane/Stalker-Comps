@@ -165,15 +165,21 @@ function initializeDataTable(tableName, lengthOption) {
                     shiftSelectedIndex = i;
                 }
             }
+            var found = false;
             for(var i = 0;i<rows.length;i++) {
                 if(i >= firstSelectedIndex && i <= shiftSelectedIndex) {
-                    if ($(rows[i]).hasClass('selected')) {
-                        if(i != firstSelectedIndex) {
-                            $(rows[i]).removeClass('selected');
-                        }
-                        
-                    } else {
+                    if (!$(rows[i]).hasClass('selected')) {
                         $(rows[i]).addClass('selected');
+                        found = true;
+                    }
+                }
+            }
+            if(!found) {
+                for(var i = rows.length-1;i>=0;i--) {
+                    if(i <= firstSelectedIndex && i >= shiftSelectedIndex) {
+                        if (!$(rows[i]).hasClass('selected')) {
+                            $(rows[i]).addClass('selected');
+                        }
                     }
                 }
             }
