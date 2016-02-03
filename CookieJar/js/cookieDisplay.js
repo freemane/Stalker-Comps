@@ -177,12 +177,6 @@ function initializeDataTable(tableName, lengthOption) {
                     }
                 }
             }
-    $('#' + tableName + ' tbody').on('click', 'tr', function () {
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-        } else {
-            cookieTable.$('tr.selected'); //.removeClass('selected');
-            $(this).addClass('selected');
         }
         else {
             if ($(this).hasClass('selected')) {
@@ -207,15 +201,15 @@ function initializeDataTable(tableName, lengthOption) {
     });
 
     // button removes selected rows
-    $('#buttonRemoveRow').click(function () {
+    $('#buttonRemoveRow').click(function() {
 
         // convert html into an array. adapted from http://stackoverflow.com/a/9579792
         var selectedCookies = [];
-        cookieTable.$('tr.selected').each(function () {
+        cookieTable.$('tr.selected').each(function() {
             var arrayOfThisRow = [];
             var tableData = $(this).find('td');
             if (tableData.length > 0) {
-                tableData.each(function () {
+                tableData.each(function() {
                     arrayOfThisRow.push($(this).text());
                 });
                 selectedCookies.push(arrayOfThisRow);
