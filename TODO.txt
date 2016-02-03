@@ -7,6 +7,7 @@ loading quickly
 	asynchronous calls
 		maybe???
 	optimizing code??
+	multiple graphs ie most recent, third party connections only
 display more info about cookies in table
 	on click!
 delete all button only deletes visible cookies
@@ -24,7 +25,8 @@ popup
 	pretty!
 editing cookies
 	officially scrapping this?
-
+cutting domains down
+	fix-- Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
 PAPER!!!!
 	zombie cookies are interesting
 

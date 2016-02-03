@@ -16,8 +16,9 @@
     
     "permissions": [
     "activeTab",
-        "tabs",
+    "tabs",
     "cookies",
+    "webRequest",
     "history",
     "storage",
     "\u003Call_urls\u003E"

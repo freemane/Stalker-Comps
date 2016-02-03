@@ -33,6 +33,7 @@ function getCurrentTab(callback) {
             callback(tabs[0]);
         });
 }
+
 function extractDomain(url) {
     var domain;
     //find & remove protocol (http, ftp, etc.) and get domain
@@ -42,35 +43,43 @@ function extractDomain(url) {
     else {
         domain = url.split('/')[0];
     }
-
     //find & remove port number
     domain = domain.split(':')[0];
     return domain;
 }
-                                     
-chrome.cookies.onChanged.addListener ( function (changed) {
-    var cookie = changed.cookie;
-    var cause = changed.OnChangedCause;
-    if (!changed.removed) {
-        getCurrentTab(function (tab) {
-            var key = cookie.domain.concat(cookie.name);
-            if (typeof tab === 'undefined') {
-                return;
-            }
-        	var domain = extractDomain(tab.url);
-            setDomainInfo(key,domain,function () {
-                //idk
-            });
-        // alert("new cookie!: " + cookie.name+ "domain: "+ cookie.domain + "\n set from: "+curUrl);
-        });
+
+function shortDomain(url) {
+    var split = url.split('.');
+    var finalString;
+    if (split.length < 2) {
+        return url;
     }
-});
+    finalString = split[split.length-2].concat('.');
+    return finalString.concat(split[split.length-1]);
+}
+                                     
+// chrome.cookies.onChanged.addListener ( function (changed) {
+//     var cookie = changed.cookie;
+//     var cause = changed.OnChangedCause;
+//     if (!changed.removed) {
+//         getCurrentTab(function (tab) {
+//             var key = shortDomain(cookie.domain).concat(cookie.name);
+//             if (typeof tab === 'undefined') {
+//                 return;
+//             }
+//         	var domain = shortDomain(extractDomain(tab.url));
+//             setDomainInfo(key,domain,function () {
+//                 //idk
+//             });
+//         // alert("new cookie!: " + cookie.name+ "domain: "+ cookie.domain + "\n set from: "+curUrl);
+//         });
+//     }
+// });
 
 function setDomainInfo(key,domain,callback) {
     chrome.storage.local.get( key,function(item){
         var setObject = item[key];
         if (typeof setObject != 'object') {
-            console.log(typeof item);
             var t = new Date();
             setObject= {domains:{},setTime:t.getTime(),count:0};
         } 
@@ -88,5 +97,42 @@ function setDomainInfo(key,domain,callback) {
 function handleError(lastError) {
     if (lastError){
         console.log(lastError.message)
+    }
+}
+
+//adapted from code @ https://github.com/chenyoufu/hack-http-headers/blob/master/js/hack-http-headers.js
+var filter = {urls: ["<all_urls>"]};
+
+chrome.webRequest.onSendHeaders.addListener(function(details){
+    getCookiesFromHeaders(details.requestHeaders, details.url);
+}, filter, ["requestHeaders"]);
+
+chrome.webRequest.onHeadersReceived.addListener(function(details){
+    getCookiesFromHeaders(details.responseHeaders,details.url);
+}, filter, ["responseHeaders"]);
+
+function getCookiesFromHeaders(headers, domain) {
+    var cookies = [];
+    var referer = '';
+    domain = shortDomain(extractDomain(domain));
+    if(headers === 'undefined'){
+        return;
+    }
+    for (var i = 0; i< headers.length; ++i) {
+        var headerName = headers[i].name;
+        var headerVal = headers[i].value;
+        if (headerName.toLowerCase() === 'cookie') {
+            cookies = headerVal.split(';');
+        }
+        if (headerName.toLowerCase() === 'referer') {
+            referer = shortDomain(extractDomain(headerVal));
+        }
+    }
+    if (domain != referer) {
+        for (var i = 0; i<cookies.length;++i) {
+            var cook = cookies[i];
+            var key = domain.concat(cook.split('=')[0].trim());
+            setDomainInfo(key,referer,function () {});
+        }
     }
 }

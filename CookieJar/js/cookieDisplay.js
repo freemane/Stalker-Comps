@@ -382,14 +382,15 @@ function createGraph(array) {
     };
     for (var i = 0; i < data.length; i++) {
         var cook = data[i];
-        var key = cook.domain.concat(cook.name);
+        var mainDomain = shortDomain(cook.domain);
+        var key = mainDomain.concat(cook.name);
         getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
-        if (!(cook.domain in domains)) {
+        if (!(mainDomain in domains)) {
             var parent = {
                 'data': {
-                    'id': cook.domain,
+                    'id': mainDomain,
                     'weight': 2,
-                    'name': cook.domain,
+                    'name': mainDomain,
                     'color': '#666',
                     'image': 'https://',
                     'nodeWidth': '100',
@@ -406,12 +407,13 @@ function createGraph(array) {
                 'NodeType': 'Domain'
             };
             points.push(parent);
-            domains[cook.domain] = true;
+            domains[mainDomain] = true;
         }
+        //TODO: Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
         var node = {
             'data': {
                 'id': key,
-                'domain': cook.domain,
+                'domain': mainDomain,
                 'weight': 1,
                 'name': cook.name,
                 'color': '#666',
@@ -433,8 +435,8 @@ function createGraph(array) {
         var edgeObj = {
             data: {
                 'id': key.concat('parentedge'),
-                'class': cook.domain,
-                source: cook.domain,
+                'class': mainDomain,
+                source: mainDomain,
                 target: key,
                 'color': '#ccc',
                 'lineStyle': 'solid',
@@ -536,14 +538,16 @@ function createGraph(array) {
         if (Object.keys(domains).length < 1) {
             return;
         }
+        var cookDom = shortDomain(cook.domain);
         var edges = [];
-        for (var dom in domains) {
-            if (dom != cook.domain && domainsAdded[dom]) {
+        for (var dom in domains) { 
+            dom = shortDomain(dom);
+            if (dom != cookDom && domainsAdded[dom]) {
                 var edgeObj = {
                     data: {
-                        'id': cook.domain.concat('-edge-').concat(dom),
-                        'class': cook.domain,
-                        source: cook.domain,
+                        'id': cookDom.concat('-edge-').concat(dom),
+                        'class': cookDom,
+                        source: cookDom,
                         target: dom,
                         'color': '#000000',
                         'lineStyle': 'dashed',
@@ -551,9 +555,9 @@ function createGraph(array) {
                     }
                 };
                 edges.push(edgeObj);
-                //console.log('3rd party cookie');
+                console.log('3rd party cookie: '.concat(dom));
             } else if (!domainsAdded[dom]) {
-                //console.log('not valid cookie dom'.concat(dom));
+                console.log('not valid cookie dom: '.concat(dom));
             }
         }
         cy.add(edges);
@@ -625,8 +629,7 @@ function createGraph(array) {
                 };
 
                 var cType = n.data('type');
-                console.log(cType + ' ' + !domain + ' ' + !cookie);
-                //
+                //console.log(cType + ' ' + !domain + ' ' + !cookie);
                 if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie)) {
                     console.log('filter call');
                     filter();
@@ -750,3 +753,12 @@ function getHash(url) {
     var hashPos = url.lastIndexOf('#');
     return url.substring(hashPos + 1);
 }
+function shortDomain(dom) {
+        var split = dom.split('.');
+        var finalString;
+        if (split.length < 3) {
+            return dom;
+        }
+        finalString = split[split.length-2].concat('.');
+        return finalString.concat(split[split.length-1]);
+    };
