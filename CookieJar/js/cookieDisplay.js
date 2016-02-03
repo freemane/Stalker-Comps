@@ -132,6 +132,10 @@ function createTable(data, cookieDiv, options) {
     initializeDataTable(tableName, lengthOption);
 };
 
+/**
+ * Function that allows for the user to select all cookies in the current table 
+ * Only works in the POPUP
+ */
 function selectAllInTablePopup() {
     var tableName = "cookieTablePopup";
     // console.log($(tableName));
@@ -159,6 +163,10 @@ function selectAllInTablePopup() {
     }
 }
 
+/**
+ * Function that allows for the user to select all cookies in the current table 
+ * Only works in the WEBAPP
+ */
 function selectAllInTableWebapp() {
     var tableName = "cookieTableWebapp";
     var rows = $('#'+tableName+' > tbody > tr');
@@ -195,6 +203,7 @@ function initializeDataTable(tableName, lengthOption) {
 
     // allows a single row to be selected
     $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
+        var rows = $('#'+tableName+' > tbody > tr');
         if(e.shiftKey) {
             console.log("Shifted");
             if ($(this).hasClass('shift')) {
@@ -202,9 +211,8 @@ function initializeDataTable(tableName, lengthOption) {
             } else {
                 //cookieTable.$('tr.shift'); //.removeClass('selected');
                 $(this).addClass('shift');
-                $(this).removeClass('noShift');
             }
-            var rows = $('#'+tableName+' > tbody > tr');
+            // var rows = $('#'+tableName+' > tbody > tr');
             var firstSelectedIndex = -1;
             var shiftSelectedIndex = -1;
             for(var i = 0;i<rows.length;i++) {
@@ -235,6 +243,11 @@ function initializeDataTable(tableName, lengthOption) {
             }
         }
         else {
+            for(var i = 0;i<rows.length;i++) {
+                if($(rows[i]).hasClass('shift')) {
+                    $(rows[i]).removeClass('shift')
+                }
+            }
             if ($(this).hasClass('selected')) {
                 $(this).removeClass('selected');
             } else {
@@ -244,6 +257,7 @@ function initializeDataTable(tableName, lengthOption) {
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift')
             }
+            
         }
         
         
