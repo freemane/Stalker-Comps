@@ -1,0 +1,33 @@
+looking nice
+	color scheme
+	search bar
+	filters and buttons in correct places
+loading quickly
+	either fewer cookies
+	asynchronous calls
+		maybe???
+	optimizing code??
+display more info about cookies in table
+	on click!
+delete all button only deletes visible cookies
+	when searching
+restructuring
+parsing http headers??
+zombie cookies?
+	can we even identify them
+    -- no
+popup
+	filters
+		only relevant(how is that defined?) cookies
+	simple
+	real quick cookie info pitstop
+	pretty!
+editing cookies
+	officially scrapping this?
+
+PAPER!!!!
+	zombie cookies are interesting
+
+
+
+

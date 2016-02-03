@@ -1,6 +1,6 @@
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
-        function(cookies) {
+        function (cookies) {
             console.log('trying to remove:' + selected[0]);
 
             for (var i = 0; i < selected.length; i++) {
@@ -9,44 +9,70 @@ function removeSelectedCookies(selected) {
 
                     curSelected = selected[i];
                     if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
-                        chrome.cookies.remove({
-                            url: 'http' + ((cookie.secure) ? 's' : '') + '://' + cookie.domain,
-                            name: cookie.name
-                        });
+                      var url = "http" + ((cookie.secure == true) ? "s" : "")+"://"+cookie.domain;
+                        deleteCookie(url,cookie.name,cookie.storeId,cookie.value,cookie.secure);
                         console.log('cookie removed');
                     }
                 }
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-    //    location.reload();
+        location.reload();
 };
 
+function deleteCookie(url,name,store, value,secure,callback){
+	//console.log("Delete URL: "+url+" | NAME: "+name+" |");
+    url = "http" + ((secure == true) ? "s" : "")+"://"+url;
+	chrome.cookies.remove({
+		'url':url,
+		'name':name,
+		'storeId':store
+	}, function(details) {
+		if(typeof callback === "undefined")
+			return;
+		if(details=="null" || details===undefined || details==="undefined") {
+			callback(false);
+		} else {
+			callback(true);
+		}
+	});
+  document.cookie = name+"="+value+";expires="+new Date(0).toUTCString()+";";
+}
+
 /*
-In addition to getting all cookies, also creates an array (outputCookies) with data 
+In addition to getting all cookies, also creates an array (outputCookies) with data
 for the HTML table.
 */
 function getAllCookies() {
-    chrome.cookies.getAll({}, function(cookies) {
+    var styleP = $.ajax({
+        url: './css/graphStyle.cycss', // wine-and-cheese-style.cycss
+        type: 'GET',
+        dataType: 'text'
+    });
+    chrome.cookies.getAll({}, function (cookies) {
         var outputCookies = [];
         var newCookies = [];
         outputCookies.push(['Name', 'Domain']);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
-            var key = cook.domain.concat(cook.name);
-            //put cookies into table format
-            outputCookies.push([cook.name, cook.domain]);
+            //cook.expirationDate = 112233445566;
+            if(cook.expirationDate != 112233445566) {
+              var key = cook.domain.concat(cook.name);
+              //put cookies into table format
+              outputCookies.push([cook.name, cook.domain]);
+            }
+
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
-        createTable(outputCookies, '.listCookies', ['cookieTablePopup','500px', [
+        createTable(outputCookies, '.listCookies', ['cookieTablePopup', '500px', [
             [10, 20, 50, -1],
             [10, 20, 50, 'All']
         ]])
-        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp','100%', [
+        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp', '100%', [
             [15, 25, 100, -1],
             [15, 25, 100, 'All']
         ]]);
-        createGraph(cookies);
+        Promise.all([cookies, styleP]).then(createGraph);
     });
 };
 
@@ -61,12 +87,12 @@ function createTable(data, cookieDiv, options) {
     tableName = options[0];
     tableWidth = options[1];
     lengthOption = options[2];
-    
+
     // we only want the init function to happen once
     if (tableName == 'cookieTableWebapp') {
         init();
     }
-    
+
     var table = document.createElement('table'),
         tableBody = document.createElement('tbody'),
         tableHeader = document.createElement('thead');
@@ -80,7 +106,7 @@ function createTable(data, cookieDiv, options) {
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
     var row = document.createElement('tr');
-    headerData.forEach(function(cellData) {
+    headerData.forEach(function (cellData) {
         var cell = document.createElement('th');
         cell.appendChild(document.createTextNode(cellData));
         row.appendChild(cell);
@@ -89,9 +115,9 @@ function createTable(data, cookieDiv, options) {
 
     // convert the rest of the array into the HTML data
     var tableData = data.slice(1, data.length);
-    tableData.forEach(function(rowData) {
+    tableData.forEach(function (rowData) {
         var row = document.createElement('tr');
-        rowData.forEach(function(cellData) {
+        rowData.forEach(function (cellData) {
             var cell = document.createElement('td');
             cell.appendChild(document.createTextNode(cellData));
             row.appendChild(cell);
@@ -151,6 +177,12 @@ function initializeDataTable(tableName, lengthOption) {
                     }
                 }
             }
+    $('#' + tableName + ' tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        } else {
+            cookieTable.$('tr.selected'); //.removeClass('selected');
+            $(this).addClass('selected');
         }
         else {
             if ($(this).hasClass('selected')) {
@@ -175,15 +207,15 @@ function initializeDataTable(tableName, lengthOption) {
     });
 
     // button removes selected rows
-    $('#buttonRemoveRow').click(function() {
+    $('#buttonRemoveRow').click(function () {
 
         // convert html into an array. adapted from http://stackoverflow.com/a/9579792
         var selectedCookies = [];
-        cookieTable.$('tr.selected').each(function() {
+        cookieTable.$('tr.selected').each(function () {
             var arrayOfThisRow = [];
             var tableData = $(this).find('td');
             if (tableData.length > 0) {
-                tableData.each(function() {
+                tableData.each(function () {
                     arrayOfThisRow.push($(this).text());
                 });
                 selectedCookies.push(arrayOfThisRow);
@@ -201,53 +233,33 @@ function initializeDataTable(tableName, lengthOption) {
     $('#' + tableName).dataTable();
 }
 
-function createGraph(data) {
+function createGraph(array) {
     // points array represents all of the nodes displayed
     var points = [];
     var domains = {};
+    var data = array[0];
+    var styleJson = array[1];
+    var infoTemplate = '<p class="name">{{name}}</p>';
     var cy = cytoscape({
 
         container: document.getElementById('cy'), // container to render in
-
-        style: [ // the stylesheet for the graph
-            {
-                selector: 'node',
-                style: {
-                    'background-color': 'data(color)',
-                    'label': 'data(name)',
-                    'background-fit': 'cover',
-                    'background-image': 'data(image)',
-                    'width': 'data(nodeWidth)',
-                    'height': 'data(nodeHeight)'
-                }
-            },
-
-            {
-                selector: 'edge',
-                style: {
-                    'width': 3,
-                    'line-color': 'data(color)',
-                    'target-arrow-color': 'data(color)',
-                    'target-arrow-shape': 'triangle',
-                    'line-style': 'data(lineStyle)'
-                }
-            }
-        ],
+        style: styleJson
+            //style was here
 
     });
-    cy.on('select', 'node', function(e) {
+    cy.on('select', 'node', function (e) {
         var node = this;
         highlight(node);
     });
-    cy.on('unselect', 'node', function(e) {
+    cy.on('unselect', 'node', function (e) {
         var node = this;
         clear();
     });
-   
+
 
     function clear() {
-        cy.batch(function() {
-            cy.$('.highlighted').forEach(function(n) {
+        cy.batch(function () {
+            cy.$('.highlighted').forEach(function (n) {
                 n.animate({
                     position: n.data('orgPos')
                 });
@@ -262,7 +274,7 @@ function createGraph(data) {
 
     function highlight(node) {
         var nhood = node.closedNeighborhood();
-        cy.batch(function() {
+        cy.batch(function () {
             cy.elements().not(nhood).removeClass('highlighted').addClass('faded');
             nhood.removeClass('faded').addClass('highlighted');
 
@@ -277,7 +289,7 @@ function createGraph(data) {
                 }
             }, {
                 duration: layoutDuration
-            }).delay(layoutDuration, function() {
+            }).delay(layoutDuration, function () {
                 nhood.layout({
                     name: 'concentric',
                     padding: layoutPadding,
@@ -290,14 +302,14 @@ function createGraph(data) {
                         y2: npos.y + w / 2
                     },
                     fit: true,
-                    concentric: function(n) {
+                    concentric: function (n) {
                         if (node.id() === n.id()) {
                             return 2;
                         } else {
                             return 1;
                         }
                     },
-                    levelWidth: function() {
+                    levelWidth: function () {
                         return 1;
                     }
                 });
@@ -317,7 +329,8 @@ function createGraph(data) {
                     'color': '#666',
                     'image': 'https://',
                     'nodeWidth': '100',
-                    'nodeHeight': '100'
+                    'nodeHeight': '100',
+                    'type': 'domain'
                 },
                 'group': 'nodes',
                 'removed': false,
@@ -334,13 +347,14 @@ function createGraph(data) {
         var node = {
             'data': {
                 'id': key,
-                'class': cook.domain,
+                'domain': cook.domain,
                 'weight': 1,
                 'name': cook.name,
                 'color': '#666',
                 'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png',
                 'nodeWidth': '25',
-                'nodeHeight': '25'
+                'nodeHeight': '25',
+                'type': 'cookie'
             }, //removed ,parent: cook.domain
 
             'group': 'nodes',
@@ -369,18 +383,18 @@ function createGraph(data) {
     cy.add(points);
     var layout = {
         name: 'concentric',
-        concentric: function(node) {
+        concentric: function (node) {
             //            console.log(node.data('weight'));
             return node.data('weight');
         },
-        levelWidth: function() {
+        levelWidth: function () {
             return 1;
         }
     };
-    
+
     cy.layout(layout);
-    
-    $('#reset').on('click', function() {
+
+    $('#reset').on('click', function () {
         cy.animate({
             fit: {
                 eles: cy.elements(),
@@ -390,67 +404,67 @@ function createGraph(data) {
         });
         cy.layout(layout);
     });
-    
+
     // zooms in on the most recent cookie centered on its domain
-    $('#mostRecent').on('click', function() {
+    $('#mostRecent').on('click', function () {
         cy.layout(layout);
-        var node = cy.nodes()[cy.nodes().length-1];
+        var node = cy.nodes()[cy.nodes().length - 1];
         highlight(node);
     });
-    
+
     // zooms in on the domain with the most cookies
-    $('#mostCookies').on('click', function() {
+    $('#mostCookies').on('click', function () {
         cy.layout(layout);
         highlight(getNodeWithMostEdges(2));
     });
-    
+
     // zooms in on the domain with the most third party connections
-    $('#mostThirdParty').on('click', function() {
+    $('#mostThirdParty').on('click', function () {
         cy.layout(layout);
         highlight(getNodeWithMostEdges(1));
-    });    
-    
+    });
+
     // zooms in on the domain with the most connections (edges)
-    $('#mostConnections').on('click', function() {
+    $('#mostConnections').on('click', function () {
         cy.layout(layout);
         var maxNeighbors = 0;
         var biggestNode;
-        cy.batch(function() {
-            cy.nodes().forEach(function(n) {
+        cy.batch(function () {
+            cy.nodes().forEach(function (n) {
                 if (n.closedNeighborhood().length > maxNeighbors) {
                     maxNeighbors = n.closedNeighborhood().length;
                     biggestNode = n;
                 }
             });
 
-        });        
+        });
         highlight(biggestNode);
-    });    
-    
+    });
+
     /*
-    This function finds and returns the node with the most edges of the specified 
+    This function finds and returns the node with the most edges of the specified
     weight.
-    
+
     As of writing, a weight of 2 represents edges between domains and cookies and
     a weight of 1 represents third party connections.
     */
     function getNodeWithMostEdges(edgeWeight) {
         var maxNeighbors = 0;
         var biggestNode;
-        cy.batch(function() {
-            cy.nodes().forEach(function(n) {
+        cy.batch(function () {
+            cy.nodes().forEach(function (n) {
                 var cookieEdges = 0;
-                n.closedNeighborhood().edges().forEach(function(edge) {
-                    if (edge.data('weight') == edgeWeight){
-                        cookieEdges ++;
+                n.closedNeighborhood().edges().forEach(function (edge) {
+                    if (edge.data('weight') == edgeWeight) {
+                        cookieEdges++;
                     }
                 });
-                if ( cookieEdges > maxNeighbors) {
+                if (cookieEdges > maxNeighbors) {
                     maxNeighbors = cookieEdges;
                     biggestNode = n;
-                }                
+                }
             });
-        });      
+        });
         return biggestNode;
     }
 
@@ -473,6 +487,7 @@ function createGraph(data) {
                     }
                 };
                 edges.push(edgeObj);
+                //console.log('3rd party cookie');
             } else if (!domainsAdded[dom]) {
                 //console.log('not valid cookie dom'.concat(dom));
             }
@@ -480,10 +495,86 @@ function createGraph(data) {
         cy.add(edges);
         cy.layout(layout);
     }
+
+    $('#search').typeahead({
+        minLength: 2,
+        highlight: true,
+    }, {
+        name: 'search-dataset',
+        source: function (query, cb) {
+            function matches(str, q) {
+                str = (str || '').toLowerCase();
+                q = (q || '').toLowerCase();
+                return str.match(q);
+            }
+
+            var fields = ['name', 'domain'];
+            function anyFieldMatches(n) {
+                for (var i = 0; i < fields.length; i++) {
+                    var f = fields[i];
+
+                    if (matches(n.data(f), query)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function getData(n) {
+                var data = n.data();
+                return data;
+            }
+
+            function sortByName(n1, n2) {
+                if (n1.data('name') < n2.data('name')) {
+                    return -1;
+                } else if (n1.data('name') > n2.data('name')) {
+                    return 1;
+                }
+                return 0;
+            }
+
+            var res = cy.nodes().stdFilter(anyFieldMatches).sort(sortByName).map(getData);
+            cb(res);
+        },
+        display: 'name'
+//        templates: {
+//          suggestion: infoTemplate
+//        }
+    }).on('typeahead:selected', function (e, entry, dataset) {
+        var n = cy.getElementById(entry.id);
+        n.select();
+        //        showNodeInfo( n );
+    });
+
+    $('#filters').on('click', function () {
+        //        console.log('filters button pressed');
+        var domain = $('#domain').is(':checked');
+        var cookie = $('#cookie').is(':checked');
+
+        cy.batch(function () {
+            cy.nodes().forEach(function (n) {
+                n.removeClass('filtered');
+
+                var filter = function () {
+                    n.addClass('filtered');
+                };
+
+                var cType = n.data('type');
+                console.log(cType + ' ' + !domain + ' ' + !cookie);
+                //
+                if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie)) {
+                    console.log('filter call');
+                    filter();
+                    //                    cy.layout(layout);
+                }
+            });
+        });
+    });
 }
 
 function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
-    chrome.storage.local.get(key, function(obj) {
+    chrome.storage.local.get(key, function (obj) {
         if (typeof obj === 'undefined' || typeof obj[key] === 'undefined') {
             return callback(cookie, {});
         }
@@ -493,40 +584,16 @@ function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
 
 function removeAllCookies() {
     chrome.cookies.getAll({},
-        function(cookies) {
+        function (cookies) {
             var startNum = cookies.length;
             for (var j = 0; j < cookies.length; j++) {
                 var cookie = cookies[j];
 
                 if (cookie.domain.charAt(0) != '.') {
-                    console.log(cookie.domain);
-                    chrome.cookies.remove({
-                        url: 'http://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: 'https://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: cookie.domain,
-                        name: cookie.name
-                    });
+                      deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
                 } else {
-                    console.log(cookie.domain);
                     cookie.domain = cookie.domain.substring(1, cookie.domain.length)
-                    chrome.cookies.remove({
-                        url: 'http://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: 'https://' + cookie.domain,
-                        name: cookie.name
-                    });
-                    chrome.cookies.remove({
-                        url: cookie.domain,
-                        name: cookie.name
-                    });
+                    deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
                 }
             }
             var endNum = cookies.length - startNum;
@@ -542,7 +609,7 @@ function openWebapp() {
     });
 };
 
-$(function() {
+$(function () {
     $('#DeleteAll').click(removeAllCookies);
     getAllCookies();
     $('#WebApp').click(openWebapp);
@@ -572,7 +639,7 @@ function init() {
 
     for (var id in tabLinks) {
         tabLinks[id].onclick = showTab;
-        tabLinks[id].onfocus = function() {
+        tabLinks[id].onfocus = function () {
             this.blur()
         };
         if (i == 0) tabLinks[id].className = 'selected';
