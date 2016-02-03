@@ -132,6 +132,56 @@ function createTable(data, cookieDiv, options) {
     initializeDataTable(tableName, lengthOption);
 };
 
+function selectAllInTablePopup() {
+    var tableName = "cookieTablePopup";
+    // console.log($(tableName));
+    // if($(tableName) == null) {
+    //     tableName = "cookieTableWebapp";
+    // }
+    var rows = $('#'+tableName+' > tbody > tr');
+    for(var i = 0;i<rows.length;i++) {
+        if($("#SelectAllPopup").val() == 'Select All') {
+            if(!$(rows[i]).hasClass('selected')) {
+                $(rows[i]).addClass('selected');
+            }
+        }
+        else {
+            if($(rows[i]).hasClass('selected')) {
+                $(rows[i]).removeClass('selected');
+            }
+        }
+    }
+    if($("#SelectAllPopup").val() == 'Select All') {
+        $("#SelectAllPopup").val('Unselect All');
+    }
+    else {
+        $("#SelectAllPopup").val('Select All');
+    }
+}
+
+function selectAllInTableWebapp() {
+    var tableName = "cookieTableWebapp";
+    var rows = $('#'+tableName+' > tbody > tr');
+    for(var i = 0;i<rows.length;i++) {
+        if($("#SelectAllWebapp").val() == 'Select All') {
+            if(!$(rows[i]).hasClass('selected')) {
+                $(rows[i]).addClass('selected');
+            }
+        }
+        else {
+            if($(rows[i]).hasClass('selected')) {
+                $(rows[i]).removeClass('selected');
+            }
+        }
+    }
+    if($("#SelectAllWebapp").val() == 'Select All') {
+        $("#SelectAllWebapp").val('Unselect All');
+    }
+    else {
+        $("#SelectAllWebapp").val('Select All');
+    }
+}
+
 /*
 As opposed to createTable, this function incorporates DataTables functionality
 to finalize the creation of the table. It adds the ability to select and
@@ -613,6 +663,8 @@ $(function () {
     $('#DeleteAll').click(removeAllCookies);
     getAllCookies();
     $('#WebApp').click(openWebapp);
+    $('#SelectAllPopup').click(selectAllInTablePopup);
+    $('#SelectAllWebapp').click(selectAllInTableWebapp)
 });
 
 
