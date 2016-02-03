@@ -110,6 +110,7 @@ function createTable(data, cookieDiv, options) {
 As opposed to createTable, this function incorporates DataTables functionality
 to finalize the creation of the table. It adds the ability to select and
 delete any number of rows where each row represents a cookie.
+Allows for shift clicking to select multiple rows at once
 */
 function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
@@ -117,13 +118,60 @@ function initializeDataTable(tableName, lengthOption) {
     });
 
     // allows a single row to be selected
-    $('#' + tableName + ' tbody').on('click', 'tr', function() {
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-        } else {
-            cookieTable.$('tr.selected'); //.removeClass('selected');
-            $(this).addClass('selected');
+    $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
+        if(e.shiftKey) {
+            console.log("Shifted");
+            if ($(this).hasClass('shift')) {
+                $(this).removeClass('shift');
+            } else {
+                //cookieTable.$('tr.shift'); //.removeClass('selected');
+                $(this).addClass('shift');
+                $(this).removeClass('noShift');
+            }
+            var rows = $('#'+tableName+' > tbody > tr');
+            var firstSelectedIndex = -1;
+            var shiftSelectedIndex = -1;
+            for(var i = 0;i<rows.length;i++) {
+                if($(rows[i]).hasClass('selected') && firstSelectedIndex == -1){
+                    firstSelectedIndex = i;
+                }
+                if($(rows[i]).hasClass('shift')) {
+                    shiftSelectedIndex = i;
+                }
+            }
+            for(var i = 0;i<rows.length;i++) {
+                if(i >= firstSelectedIndex && i <= shiftSelectedIndex) {
+                    if ($(rows[i]).hasClass('selected')) {
+                        if(i != firstSelectedIndex) {
+                            $(rows[i]).removeClass('selected');
+                        }
+                        
+                    } else {
+                        $(rows[i]).addClass('selected');
+                    }
+                }
+            }
         }
+        else {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+            } else {
+                cookieTable.$('tr.selected'); //.removeClass('selected');
+                $(this).addClass('selected');
+            }
+            if ($(this).hasClass('shift')) {
+                $(this).removeClass('shift')
+            }
+        }
+        
+        
+        // $(this).click(function(e) {
+        //     if(e.shiftKey) {
+        //         console.log("shift-click detected");
+        //     }
+
+        // });
+
     });
 
     // button removes selected rows
@@ -426,7 +474,7 @@ function createGraph(data) {
                 };
                 edges.push(edgeObj);
             } else if (!domainsAdded[dom]) {
-                console.log('not valid cookie dom'.concat(dom));
+                //console.log('not valid cookie dom'.concat(dom));
             }
         }
         cy.add(edges);
