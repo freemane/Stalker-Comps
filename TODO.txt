@@ -11,9 +11,9 @@ loading quickly
 display more info about cookies in table
 	on click!
 delete all button only deletes visible cookies
-	when searching
+	when searching -done
 restructuring
-parsing http headers??
+parsing http headers?? -done
 zombie cookies?
 	can we even identify them
     -- no
@@ -25,11 +25,13 @@ popup
 	pretty!
 editing cookies
 	officially scrapping this?
-cutting domains down
+cutting domains down -done
 	fix-- Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
 PAPER!!!!
 	zombie cookies are interesting
-
-
-
-
+Focus on educational aspect of the app
+	"What's this feature?" - able to turn off
+	Tutorial mode?
+Cookie trail?
+	Look in http headers with host/referrer stuff
+More usability testing!
