@@ -18,6 +18,7 @@
 <!--Cytoscape-->
 <script type="text/javascript" src="./cytoscape.js-2.5.4/cytoscape.min.js"></script>
 <link rel="stylesheet" type="text/css" href="./css/webapp.css">
+<link rel="stylesheet" type="text/css" href="./css/typeahead.css">
 <script type="text/javascript" src="./js/typeahead.bundle.min.js"></script>
 
 <!--  For displaying the cookies  -->
@@ -46,22 +47,32 @@
 
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
-    <div id="loading">
-        <span class="fa fa-refresh fa-spin"></span>
-    </div>
-    <button id="reset">Reset View</button>
-    <button id="mostRecent">Newest Cookie</button>
-    <button id="mostCookies">Most Cookies</button>
-    <button id="mostThirdParty">Most Third Party Connections</button>
-    <button id="mostConnections">Most Connections</button>
-    <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
-    <p>Filter:</p>
-    <div id="filters">
-        <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br />
-        <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br />
-    </div>
-    <div id="search-wrapper">
-        <input type="text" class="form-control" id="search" autofocus placeholder="Search">
+    <!--  Classes are used to apply Bootstrap style  -->
+    <div class="row">
+        <div class="col-sm-1">
+            <button class="btn btn-default" id="reset">Reset View</button>
+        </div>
+        <div class="col-sm-5">
+            <button class="btn btn-default" id="mostRecent">Newest Cookie</button>
+            <button class="btn btn-default" id="mostCookies">Most Cookies</button>
+            <button class="btn btn-default" id="mostThirdParty">Most Third Party Connections</button>
+            <button class="btn btn-default" id="mostConnections">Most Connections</button>
+        </div>
+        <div class="col-sm-3">
+        <div id="search-wrapper">
+            <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
+            <span class="glyphicon glyphicon-remove-circle" id="clearSearch"></span>
+        </div>
+        </div>
+        <div class="col-sm-3">
+            <!--  TODO:  make a visual key  -->
+            <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
+            <p>Filter by:</p>
+            <div id="filters">
+                <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br />
+                <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br />
+            </div>
+        </div>
     </div>
 	<div id="cy" z-index=2></div>
 </div>

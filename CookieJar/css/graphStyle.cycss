@@ -14,7 +14,6 @@ edge {
     target-arrow-color: data(color);
     target-arrow-shape: triangle;
     line-style: data(lineStyle);
-    curve-style: haystack;
 }
 
 .filtered {

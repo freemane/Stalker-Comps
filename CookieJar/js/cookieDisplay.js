@@ -308,15 +308,15 @@ function createGraph(array) {
 
         container: document.getElementById('cy'), // container to render in
         style: styleJson
-            //style was here
-
     });
     cy.on('select', 'node', function (e) {
         var node = this;
+        $('#search').val(''); // clears anything in the search box
         highlight(node);
     });
     cy.on('unselect', 'node', function (e) {
         var node = this;
+        $('#search').val('');
         clear();
     });
 
@@ -380,7 +380,9 @@ function createGraph(array) {
             });
         });
     };
-    for (var i = 0; i < data.length; i++) {
+    
+    var amountToDisplay = Math.min(data.length,100);
+    for (var i = 0; i < amountToDisplay; i++) {
         var cook = data[i];
         var mainDomain = shortDomain(cook.domain);
         var key = mainDomain.concat(cook.name);
@@ -395,16 +397,14 @@ function createGraph(array) {
                     'image': 'https://',
                     'nodeWidth': '100',
                     'nodeHeight': '100',
-                    'type': 'domain'
+                    'type': 'domain',
+                    'searchData': mainDomain,
                 },
-                'group': 'nodes',
                 'removed': false,
                 'selected': false,
                 'selectable': true,
                 'locked': false,
                 'grabbable': true,
-                'classes': '',
-                'NodeType': 'Domain'
             };
             points.push(parent);
             domains[mainDomain] = true;
@@ -420,17 +420,15 @@ function createGraph(array) {
                 'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png',
                 'nodeWidth': '25',
                 'nodeHeight': '25',
-                'type': 'cookie'
+                'type': 'cookie',
+                'searchData': mainDomain + '/' + cook.name
             }, //removed ,parent: cook.domain
 
-            'group': 'nodes',
             'removed': false,
             'selected': false,
             'selectable': true,
             'locked': false,
             'grabbable': true,
-            'classes': '',
-            'NodeType': 'Cookie'
         };
         var edgeObj = {
             data: {
@@ -468,6 +466,7 @@ function createGraph(array) {
             },
             duration: layoutDuration
         });
+        clear();
         cy.layout(layout);
     });
 
@@ -564,8 +563,12 @@ function createGraph(array) {
         cy.layout(layout);
     }
 
+    $('#clearSearch').click(function(){
+        $('#search').val('').select();
+    });    
+
     $('#search').typeahead({
-        minLength: 2,
+        minLength: 1,
         highlight: true,
     }, {
         name: 'search-dataset',
@@ -576,7 +579,7 @@ function createGraph(array) {
                 return str.match(q);
             }
 
-            var fields = ['name', 'domain'];
+            var fields = ['searchData'];
             function anyFieldMatches(n) {
                 for (var i = 0; i < fields.length; i++) {
                     var f = fields[i];
@@ -605,14 +608,15 @@ function createGraph(array) {
             var res = cy.nodes().stdFilter(anyFieldMatches).sort(sortByName).map(getData);
             cb(res);
         },
-        display: 'name'
-//        templates: {
-//          suggestion: infoTemplate
-//        }
+        display: 'searchData',
+        limit: 15,
+        templates: {
+            empty: '<div class="empty-message">No results :(</div>\n',
+            header: '<p class="description-message">Click to zoom in on result</p>',
+        }
     }).on('typeahead:selected', function (e, entry, dataset) {
         var n = cy.getElementById(entry.id);
         n.select();
-        //        showNodeInfo( n );
     });
 
     $('#filters').on('click', function () {
