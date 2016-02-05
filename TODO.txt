@@ -35,3 +35,8 @@ Focus on educational aspect of the app
 Cookie trail?
 	Look in http headers with host/referrer stuff
 More usability testing!
+
+
+PROBLEMS:
+When cookie is deleted in table, page refreshes and goes back to graphic
+Why does the graph only load if it's the first tab?
