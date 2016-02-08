@@ -52,7 +52,7 @@ function getAllCookies() {
     chrome.cookies.getAll({}, function (cookies) {
         var outputCookies = [];
         var newCookies = [];
-        outputCookies.push(['Name', 'Domain']);
+        outputCookies.push(['Name','Domain']);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             //cook.expirationDate = 112233445566;
@@ -60,6 +60,7 @@ function getAllCookies() {
               var key = cook.domain.concat(cook.name);
               //put cookies into table format
               outputCookies.push([cook.name, cook.domain]);
+              //outputCookies.push([$("#")])
             }
 
         }
@@ -190,6 +191,69 @@ function selectAllInTableWebapp() {
     }
 }
 
+/**
+ * Add event listener for opening and closing details
+ * Taken from: 
+ */
+
+function format(cook) {
+    console.log("Formatted");
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>Name:</td>'+
+            '<td>'+cook.name+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Value:</td>'+
+            '<td>'+cook.value+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Domain:</td>'+
+            '<td>'+cook.domain+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>HTTP Only:</td>'+
+            '<td>'+cook.httpOnly+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Host Only:</td>'+
+            '<td>'+cook.hostOnly+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Expiration Date</td>'+
+            '<td>'+cook.expirationDate+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Secure:</td>'+
+            '<td>'+cook.secure+'</td>'+
+        '</tr>'+
+    '</table>';
+}
+
+function expand(tableName,row,data,table) {
+    var rows = $('#'+tableName+' > tbody > tr');
+    for(var i = 0;i<rows.length;i++) {
+        if($(rows[i]).hasClass('selected')) {
+            chrome.cookies.getAll({},function(cookies) {
+                for(var j = 0;j<cookies.length;j++) {
+                    var cook = cookies[j];
+                    // console.log(data[0]+":"+data[1]);
+                    // console.log(cook.name+":"+cook.domain);
+                    if((data[0] == cook.name)&&(data[1] == cook.domain)) {
+                        // Found the cookie
+                        console.log("FOUND");
+                        // var curRow = table.row(tr);
+                        row.child(format(cook)).show();
+                        // $(rows[i]).append(format(cook));
+                        break;
+                    }
+                }
+            });
+        }
+    }
+}
+
+
 /*
 As opposed to createTable, this function incorporates DataTables functionality
 to finalize the creation of the table. It adds the ability to select and
@@ -199,6 +263,13 @@ Allows for shift clicking to select multiple rows at once
 function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
         'lengthMenu': lengthOption
+        // 'columns': [
+        //     {
+        //         "className": "details-control" 
+        //     },
+        //     {"data":"Name"},
+        //     {"data":"Domain"}
+        // ]
     });
 
     // allows a single row to be selected
@@ -247,16 +318,44 @@ function initializeDataTable(tableName, lengthOption) {
                 if($(rows[i]).hasClass('shift')) {
                     $(rows[i]).removeClass('shift')
                 }
+                if($(rows[i]).hasClass('shown')) {
+                    $(rows[i]).removeClass('shown');
+                }
             }
+            var tr = $(this).closest('tr');
+            var row = cookieTable.row( tr );
             if ($(this).hasClass('selected')) {
                 $(this).removeClass('selected');
+                if ( row.child.isShown() ) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                    expand(tableName,row,data,cookieTable);
+                    tr.addClass('shown');
+                }
             } else {
                 cookieTable.$('tr.selected'); //.removeClass('selected');
                 $(this).addClass('selected');
+                var tr = $(this).closest('tr');
+                var row = cookieTable.row( tr );
+                console.log(tr);
+                if ( row.child.isShown() ) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                    expand(tableName,row,data,cookieTable);
+                    tr.addClass('shown');
+                }
+
             }
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift')
             }
+            
             
         }
         
