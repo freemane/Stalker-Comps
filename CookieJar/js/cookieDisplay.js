@@ -192,12 +192,12 @@ function selectAllInTableWebapp() {
 }
 
 /**
- * Add event listener for opening and closing details
- * Taken from: 
+ * Given cookie data, return a string with the HTML for a small table that includes the cookie information
+ * Formatted the date from milliseconds since UNIX epoch to an actual time
  */
-
 function format(cook) {
-    console.log("Formatted");
+    //console.log("Formatted");
+    var date = new Date(cook.expirationDate * 1000);
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
         '<tr>'+
             '<td>Name:</td>'+
@@ -221,7 +221,7 @@ function format(cook) {
         '</tr>'+
         '<tr>'+
             '<td>Expiration Date</td>'+
-            '<td>'+cook.expirationDate+'</td>'+
+            '<td>'+date+'</td>'+
         '</tr>'+
         '<tr>'+
             '<td>Secure:</td>'+
