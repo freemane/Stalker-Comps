@@ -280,10 +280,8 @@ function initializeDataTable(tableName, lengthOption) {
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift');
             } else {
-                //cookieTable.$('tr.shift'); //.removeClass('selected');
                 $(this).addClass('shift');
             }
-            // var rows = $('#'+tableName+' > tbody > tr');
             var firstSelectedIndex = -1;
             var shiftSelectedIndex = -1;
             for(var i = 0;i<rows.length;i++) {
@@ -350,23 +348,11 @@ function initializeDataTable(tableName, lengthOption) {
                     expand(tableName,row,data,cookieTable);
                     tr.addClass('shown');
                 }
-
             }
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift')
-            }
-            
-            
+            }    
         }
-        
-        
-        // $(this).click(function(e) {
-        //     if(e.shiftKey) {
-        //         console.log("shift-click detected");
-        //     }
-
-        // });
-
     });
 
     // button removes selected rows
