@@ -17,7 +17,7 @@ function removeSelectedCookies(selected) {
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-        location.reload();
+        //location.reload();
 };
 
 function deleteCookie(url,name,store, value,secure,callback){
@@ -56,12 +56,12 @@ function getAllCookies() {
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             //cook.expirationDate = 112233445566;
-            if(cook.expirationDate != 112233445566) {
-              var key = cook.domain.concat(cook.name);
+            // if(cook.expirationDate != 112233445566) {
+            var key = cook.domain.concat(cook.name);
               //put cookies into table format
-              outputCookies.push([cook.name, cook.domain]);
+            outputCookies.push([cook.name, cook.domain]);
               //outputCookies.push([$("#")])
-            }
+            // }
 
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
