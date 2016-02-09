@@ -64,11 +64,11 @@ function getAllCookies() {
 
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
-        createTable(outputCookies, '.listCookies', ['cookieTablePopup', '500px', [
+        createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
             [10, 20, 50, -1],
             [10, 20, 50, 'All']
         ]])
-        createTable(outputCookies, '.outputCookies', ['cookieTableWebapp', '100%', [
+        createTable(outputCookies, '#outputCookies', ['cookieTableWebapp', '100%', [
             [15, 25, 100, -1],
             [15, 25, 100, 'All']
         ]]);

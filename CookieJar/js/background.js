@@ -58,23 +58,14 @@ function shortDomain(url) {
     return finalString.concat(split[split.length-1]);
 }
                                      
-// chrome.cookies.onChanged.addListener ( function (changed) {
-//     var cookie = changed.cookie;
-//     var cause = changed.OnChangedCause;
-//     if (!changed.removed) {
-//         getCurrentTab(function (tab) {
-//             var key = shortDomain(cookie.domain).concat(cookie.name);
-//             if (typeof tab === 'undefined') {
-//                 return;
-//             }
-//         	var domain = shortDomain(extractDomain(tab.url));
-//             setDomainInfo(key,domain,function () {
-//                 //idk
-//             });
-//         // alert("new cookie!: " + cookie.name+ "domain: "+ cookie.domain + "\n set from: "+curUrl);
-//         });
-//     }
-// });
+chrome.cookies.onChanged.addListener ( function (changed) {
+    var cookie = changed.cookie;
+    var cause = changed.OnChangedCause;
+    if (changed.removed) {
+        var key = shortDomain(cookie.domain).concat(cookie.name);
+        chrome.storage.local.remove(key,function () {})
+    }
+});
 
 function setDomainInfo(key,domain,callback) {
     chrome.storage.local.get( key,function(item){

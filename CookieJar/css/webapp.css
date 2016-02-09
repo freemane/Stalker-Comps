@@ -14,6 +14,11 @@
     text-align: center;*/
 }
 
+*.unselectable {
+   -webkit-user-select: none;
+   user-select: none;
+}
+
 #clearSearch {
     position: absolute;
     z-index: 10;
@@ -26,6 +31,8 @@
     cursor: pointer;
     color: #ccc;
 }
+
+
 
 body { font-size: 100%; font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif; }
 ul#tabs { list-style-type: none; margin: 30px 0 0 0; padding: 0 0 0.3em 0; }

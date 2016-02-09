@@ -4,3 +4,9 @@ body {
   position: relative;
   vertical-align:middle;
 }
+
+
+*.unselectable {
+   -webkit-user-select: none;
+   user-select: none;
+}
