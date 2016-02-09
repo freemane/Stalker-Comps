@@ -54,6 +54,5 @@ More usability testing!
 
 
 PROBLEMS:
-When cookie is deleted in table, page refreshes and goes back to graphic
 Why does the graph only load if it's the first tab?
 If a cookie cannot be deleted, do we want a notification to alert the user?
