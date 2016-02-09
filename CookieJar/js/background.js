@@ -24,16 +24,9 @@
 
 //TODO Code review ALL of this (add comments as well)
 
-function getCurrentTab(callback) {
-    chrome.tabs.query(
-        {
-            active: true,
-            lastFocusedWindow: true
-        }, function (tabs) {
-            callback(tabs[0]);
-        });
-}
-
+/*
+Extracts the subdomain and domain from a url. Removes http://, and /.../..
+*/
 function extractDomain(url) {
     var domain;
     //find & remove protocol (http, ftp, etc.) and get domain
@@ -47,7 +40,11 @@ function extractDomain(url) {
     domain = domain.split(':')[0];
     return domain;
 }
+/*
+removes any subdomains from the domain name
 
+Doesn't work with "odd" domains with extra periods like .co.uk
+*/
 function shortDomain(url) {
     var split = url.split('.');
     var finalString;
@@ -57,16 +54,26 @@ function shortDomain(url) {
     finalString = split[split.length-2].concat('.');
     return finalString.concat(split[split.length-1]);
 }
-                                     
+
+
+/*
+When cookies are removed from the browser, removes the equivalent entry from our db
+*/                                    
 chrome.cookies.onChanged.addListener ( function (changed) {
     var cookie = changed.cookie;
     var cause = changed.OnChangedCause;
     if (changed.removed) {
         var key = shortDomain(cookie.domain).concat(cookie.name);
-        chrome.storage.local.remove(key,function () {})
+        chrome.storage.local.remove(key,handleError)
     }
 });
 
+
+/*
+Stores the 3rd party connection in the option with the corresponding cookie object
+
+Appends to an object that already exists if it can, otherwise creates a new object 
+*/
 function setDomainInfo(key,domain,callback) {
     chrome.storage.local.get( key,function(item){
         var setObject = item[key];
@@ -79,11 +86,11 @@ function setDomainInfo(key,domain,callback) {
         }
         setObject['domains'][domain]++;
         setObject['count']++;
-        var newObj = {};
-        newObj[key] = setObject;
+        var newObj = {key:setObject};
         chrome.storage.local.set(newObj, callback);
     });
 }
+
 
 function handleError(lastError) {
     if (lastError){
@@ -92,16 +99,23 @@ function handleError(lastError) {
 }
 
 //adapted from code @ https://github.com/chenyoufu/hack-http-headers/blob/master/js/hack-http-headers.js
+//
 var filter = {urls: ["<all_urls>"]};
 
+//Listener for cookies being sent from browser to host
 chrome.webRequest.onSendHeaders.addListener(function(details){
     getCookiesFromHeaders(details.requestHeaders, details.url);
 }, filter, ["requestHeaders"]);
 
+//Listener for cookies being received
 chrome.webRequest.onHeadersReceived.addListener(function(details){
     getCookiesFromHeaders(details.responseHeaders,details.url);
 }, filter, ["responseHeaders"]);
 
+
+/*
+Parses http headers to get cookies being set, then stores the domain info in storage
+*/
 function getCookiesFromHeaders(headers, domain) {
     var cookies = [];
     var referer = '';
@@ -119,11 +133,12 @@ function getCookiesFromHeaders(headers, domain) {
             referer = shortDomain(extractDomain(headerVal));
         }
     }
+    //Checks to make sure only storing 3rd party headers
     if (domain != referer) {
         for (var i = 0; i<cookies.length;++i) {
             var cook = cookies[i];
             var key = domain.concat(cook.split('=')[0].trim());
-            setDomainInfo(key,referer,function () {});
+            setDomainInfo(key,referer,handleError);
         }
     }
 }
