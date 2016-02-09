@@ -7,7 +7,6 @@ GLOBAL VARIABLES
 var tabLinks = new Array();
 var contentDivs = new Array();
 
-
 // Starts the extension
 //TODO Create globalish variable for allCookies (do this once) and pass when needed
 //TODO Consolidate selectAll function
@@ -362,30 +361,28 @@ function initializeDataTable(tableName, lengthOption) {
             var tr = $(this).closest('tr');
             var row = cookieTable.row( tr );
             if ($(this).hasClass('selected')) {
-                if($(this).hasClass('shown')) {
-                    $(this).removeClass('selected');
-                    if ( row.child.isShown() ) {
-                        row.child.hide();
-                        tr.removeClass('shown');
-                    }
-                    else {
-                        //TODO  - Explain what this is
-                        var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-                        expand(tableName,row,data,cookieTable);
-                        tr.addClass('shown');
-                    }
+                $(this).removeClass('selected');
+                if ( row.child.isShown() ) {
+                    row.child.hide();
+                    tr.removeClass('shown');
                 }
                 else {
-                    
+                    //TODO  - Explain what this is
+                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                    expand(tableName,row,data,cookieTable);
+                    tr.addClass('shown');
                 }
+                // else {
+                    
+                // }
                 
             } else {
                 cookieTable.$('tr.selected'); //.removeClass('selected');
                 $(this).addClass('selected');
                 var tr = $(this).closest('tr');
                 var row = cookieTable.row( tr );
-                console.log(tr);
-                if ( row.child.isShown() ) {
+                //console.log(tr);
+                if ( tr.hasClass('shown') ) {
                     row.child.hide();
                     tr.removeClass('shown');
                 }
@@ -428,14 +425,15 @@ function initializeDataTable(tableName, lengthOption) {
 /*
 
 */
-//TODO Rename parameter?
 //TODO Continue code review (reorganize stuff?)
-function createGraph(array) {
+function createGraph(args) {
     // points array represents all of the nodes displayed
     var points = [];
+
+    // Set of domains we have already created a node for
     var domains = {};
-    var data = array[0];
-    var styleJson = array[1];
+    var data = args[0];
+    var styleJson = args[1];
     var cy = cytoscape({
         container: document.getElementById('cy'), // container to render in
         style: styleJson
@@ -451,7 +449,7 @@ function createGraph(array) {
         clear();
     });
 
-
+    //TODO return cookies to their original position
     function clear() {
         cy.batch(function () {
             cy.$('.highlighted').forEach(function (n) {
@@ -464,9 +462,11 @@ function createGraph(array) {
         });
     }
 
+    //TODO Figure out what these variables change in terms of animation speed, add comments accordingly
     var layoutPadding = 50;
     var layoutDuration = 500;
 
+    // Used to zoom in on a node and organize it's connections accordingly
     function highlight(node) {
         var nhood = node.closedNeighborhood();
         cy.batch(function () {
@@ -497,6 +497,7 @@ function createGraph(array) {
                         y2: npos.y + w / 2
                     },
                     fit: true,
+                    //TODO Add different weights for third-party connections/ explore different layouts
                     concentric: function (n) {
                         if (node.id() === n.id()) {
                             return 2;
@@ -512,10 +513,11 @@ function createGraph(array) {
         });
     };
     
+    // Only display 100 cookies
     var amountToDisplay = Math.min(data.length,100);
     for (var i = 0; i < amountToDisplay; i++) {
         var cook = data[i];
-        var mainDomain = shortDomain(cook.domain);
+        var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
         var key = mainDomain.concat(cook.name);
         getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
         if (!(mainDomain in domains)) {
@@ -525,11 +527,11 @@ function createGraph(array) {
                     'weight': 2,
                     'name': mainDomain,
                     'color': '#666',
-                    'image': 'https://',
+                    'image': 'https://', //TODO add image to the parent nodes here (possibly jar?)
                     'nodeWidth': '100',
                     'nodeHeight': '100',
                     'type': 'domain',
-                    'searchData': mainDomain,
+                    'searchData': mainDomain, //TODO look into adding additional fields for the tooltips
                 },
                 'removed': false,
                 'selected': false,
@@ -553,7 +555,7 @@ function createGraph(array) {
                 'nodeHeight': '25',
                 'type': 'cookie',
                 'searchData': mainDomain + '/' + cook.name
-            }, //removed ,parent: cook.domain
+            },
 
             'removed': false,
             'selected': false,
@@ -561,6 +563,7 @@ function createGraph(array) {
             'locked': false,
             'grabbable': true,
         };
+        // Connects domains to their cookies
         var edgeObj = {
             data: {
                 'id': key.concat('parentedge'),
@@ -579,7 +582,6 @@ function createGraph(array) {
     var layout = {
         name: 'concentric',
         concentric: function (node) {
-            //            console.log(node.data('weight'));
             return node.data('weight');
         },
         levelWidth: function () {
@@ -602,6 +604,7 @@ function createGraph(array) {
     });
 
     // zooms in on the most recent cookie centered on its domain
+    //TODO zoom in on COOKIE instead of domain
     $('#mostRecent').on('click', function () {
         cy.layout(layout);
         var node = cy.nodes()[cy.nodes().length - 1];
@@ -742,7 +745,7 @@ function createGraph(array) {
         display: 'searchData',
         limit: 15,
         templates: {
-            empty: '<div class="empty-message">No results :(</div>\n',
+            empty: '<div class="empty-message">No results <b>☹</b></div>\n',
             header: '<p class="description-message">Click to zoom in on result</p>',
         }
     }).on('typeahead:selected', function (e, entry, dataset) {
@@ -775,6 +778,10 @@ function createGraph(array) {
     });
 }
 
+/*
+
+Callback is the createThirdPartyEdges function in the createGraph function 
+*/
 function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
     chrome.storage.local.get(key, function (obj) {
         if (typeof obj === 'undefined' || typeof obj[key] === 'undefined') {
@@ -792,6 +799,9 @@ function openWebapp() {
 };
 
 //TODO (Emma) - Explain what is going on here in code review
+/*
+Matches LI items in the list to the corresponding div with the same ID
+*/
 function initializeTabs() {
     // Grab the tab links and content divs from the page
     var tabListItems = document.getElementById('tabs').childNodes;
@@ -826,6 +836,9 @@ function initializeTabs() {
     }
 }
 
+/*
+Shows the tab most recently clicked on
+*/
 function showTab() {
     var selectedId = getHash(this.getAttribute('href'));
 
@@ -864,4 +877,4 @@ function shortDomain(dom) {
         }
         finalString = split[split.length-2].concat('.');
         return finalString.concat(split[split.length-1]);
-    };
+};

@@ -1,3 +1,9 @@
+Fix min/max zoom
+
+Try to figure out where you are if you zoom out/in too much (maybe change the bg color of the actual graph?)
+
+Look into adding related domains to the expanded cookie cell in the webapp
+
 Talk about webapp.css file (can it be split into webapp.css and popup.css)
 
 ADD FAQ
