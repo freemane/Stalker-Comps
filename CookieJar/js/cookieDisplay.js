@@ -1,8 +1,51 @@
+
+/*
+GLOBAL VARIABLES
+*/
+
+// variables for displaying tabs
+var tabLinks = new Array();
+var contentDivs = new Array();
+
+
+// Starts the extension
+//TODO Create globalish variable for allCookies (do this once) and pass when needed
+//TODO Consolidate selectAll function
+$(function () {
+    $('#DeleteAll').click(removeAllCookies);
+    getAllCookies();
+    $('#WebApp').click(openWebapp);
+    $('#SelectAllPopup').click(selectAllInTablePopup);
+    $('#SelectAllWebapp').click(selectAllInTableWebapp)
+});
+
+/*
+Attempts to remove all cookies using the chrome.cookies API, refreshes page 
+
+Check to see if we can simplify the process with '*'
+*/
+function removeAllCookies() {
+    chrome.cookies.getAll({},
+        function (cookies) {
+            for (var j = 0; j < cookies.length; j++) {
+                var cookie = cookies[j];
+                if (cookie.domain.charAt(0) != '.') {
+                      deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
+                } else {
+                    cookie.domain = cookie.domain.substring(1, cookie.domain.length)
+                    deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
+                }
+            }
+        });
+    location.reload();
+};
+
+//TODO Consolidate this function and removeAllCookis to one, pass different lists of cookies
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
         function (cookies) {
-            console.log('trying to remove:' + selected[0]);
 
+            //TODO Call deleteCookie on the selected list only, w/o the getAll call
             for (var i = 0; i < selected.length; i++) {
                 for (var j = 0; j < cookies.length; j++) {
                     var cookie = cookies[j];
@@ -11,7 +54,6 @@ function removeSelectedCookies(selected) {
                     if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
                       var url = "http" + ((cookie.secure == true) ? "s" : "")+"://"+cookie.domain;
                         deleteCookie(url,cookie.name,cookie.storeId,cookie.value,cookie.secure);
-                        console.log('cookie removed');
                     }
                 }
             }
@@ -20,8 +62,10 @@ function removeSelectedCookies(selected) {
         //location.reload();
 };
 
-function deleteCookie(url,name,store, value,secure,callback){
-	//console.log("Delete URL: "+url+" | NAME: "+name+" |");
+/*
+Removes cookie, given it's url, name, storeId, value, and secure boolean
+*/
+function deleteCookie(url,name,store,value,secure,callback){
     url = "http" + ((secure == true) ? "s" : "")+"://"+url;
 	chrome.cookies.remove({
 		'url':url,
@@ -36,7 +80,6 @@ function deleteCookie(url,name,store, value,secure,callback){
 			callback(true);
 		}
 	});
-  document.cookie = name+"="+value+";expires="+new Date(0).toUTCString()+";";
 }
 
 /*
@@ -45,7 +88,7 @@ for the HTML table.
 */
 function getAllCookies() {
     var styleP = $.ajax({
-        url: './css/graphStyle.cycss', // wine-and-cheese-style.cycss
+        url: './css/graphStyle.cycss',
         type: 'GET',
         dataType: 'text'
     });
@@ -53,18 +96,18 @@ function getAllCookies() {
         var outputCookies = [];
         var newCookies = [];
         outputCookies.push(['Name','Domain']);
+
+        //put cookies into table format
+
+        //TODO - See if we can pass the unmodified cookies, keep headers same
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
-            //cook.expirationDate = 112233445566;
-            // if(cook.expirationDate != 112233445566) {
-            var key = cook.domain.concat(cook.name);
-              //put cookies into table format
+            var key = cook.domain.concat(cook.name); 
             outputCookies.push([cook.name, cook.domain]);
-              //outputCookies.push([$("#")])
-            // }
-
         }
-        $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
+
+        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
+
         createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
             [10, 20, 50, -1],
             [10, 20, 50, 'All']
@@ -73,6 +116,7 @@ function getAllCookies() {
             [15, 25, 100, -1],
             [15, 25, 100, 'All']
         ]]);
+
         Promise.all([cookies, styleP]).then(createGraph);
     });
 };
@@ -91,7 +135,7 @@ function createTable(data, cookieDiv, options) {
 
     // we only want the init function to happen once
     if (tableName == 'cookieTableWebapp') {
-        init();
+        initializeTabs();
     }
 
     var table = document.createElement('table'),
@@ -105,6 +149,7 @@ function createTable(data, cookieDiv, options) {
     table.setAttribute('cellspacing', '0');
 
     // convert first array in array to the HTML header row
+    //TODO - Consolidate the forEach calls to format the rows within the table
     var headerData = data.slice(0, 1)[0];
     var row = document.createElement('tr');
     headerData.forEach(function (cellData) {
@@ -237,14 +282,9 @@ function expand(tableName,row,data,table) {
             chrome.cookies.getAll({},function(cookies) {
                 for(var j = 0;j<cookies.length;j++) {
                     var cook = cookies[j];
-                    // console.log(data[0]+":"+data[1]);
-                    // console.log(cook.name+":"+cook.domain);
                     if((data[0] == cook.name)&&(data[1] == cook.domain)) {
                         // Found the cookie
-                        console.log("FOUND");
-                        // var curRow = table.row(tr);
                         row.child(format(cook)).show();
-                        // $(rows[i]).append(format(cook));
                         break;
                     }
                 }
@@ -260,28 +300,25 @@ to finalize the creation of the table. It adds the ability to select and
 delete any number of rows where each row represents a cookie.
 Allows for shift clicking to select multiple rows at once
 */
+
+//TODO - Modularize the shiftClick and show functionality into different functions
 function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
         'lengthMenu': lengthOption
-        // 'columns': [
-        //     {
-        //         "className": "details-control" 
-        //     },
-        //     {"data":"Name"},
-        //     {"data":"Domain"}
-        // ]
     });
 
     // allows a single row to be selected
+    //TODO - Messy as hell, clean up please (Cody)
     $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
         var rows = $('#'+tableName+' > tbody > tr');
+        // If the shift key is down on the click event...
         if(e.shiftKey) {
-            console.log("Shifted");
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift');
             } else {
                 $(this).addClass('shift');
             }
+            // Find the indices of the first selected cell and the shift-clicked cell
             var firstSelectedIndex = -1;
             var shiftSelectedIndex = -1;
             for(var i = 0;i<rows.length;i++) {
@@ -292,6 +329,7 @@ function initializeDataTable(tableName, lengthOption) {
                     shiftSelectedIndex = i;
                 }
             }
+            // Shift click from the top-down or bottom-up
             var found = false;
             for(var i = 0;i<rows.length;i++) {
                 if(i >= firstSelectedIndex && i <= shiftSelectedIndex) {
@@ -312,6 +350,7 @@ function initializeDataTable(tableName, lengthOption) {
             }
         }
         else {
+            //TODO -  Remove unnecessary classes (selected, shift, shown)
             for(var i = 0;i<rows.length;i++) {
                 if($(rows[i]).hasClass('shift')) {
                     $(rows[i]).removeClass('shift')
@@ -323,16 +362,23 @@ function initializeDataTable(tableName, lengthOption) {
             var tr = $(this).closest('tr');
             var row = cookieTable.row( tr );
             if ($(this).hasClass('selected')) {
-                $(this).removeClass('selected');
-                if ( row.child.isShown() ) {
-                    row.child.hide();
-                    tr.removeClass('shown');
+                if($(this).hasClass('shown')) {
+                    $(this).removeClass('selected');
+                    if ( row.child.isShown() ) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    }
+                    else {
+                        //TODO  - Explain what this is
+                        var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                        expand(tableName,row,data,cookieTable);
+                        tr.addClass('shown');
+                    }
                 }
                 else {
-                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-                    expand(tableName,row,data,cookieTable);
-                    tr.addClass('shown');
+                    
                 }
+                
             } else {
                 cookieTable.$('tr.selected'); //.removeClass('selected');
                 $(this).addClass('selected');
@@ -370,11 +416,8 @@ function initializeDataTable(tableName, lengthOption) {
                 selectedCookies.push(arrayOfThisRow);
             }
             // removes all selected rows from table
-            // PROBLEM:  also removes rows of cookies that weren't actually deleted
-            // ^ this is something we will have to decide:  do we show these or not?
             cookieTable.row('tr.selected').remove().draw(false);
         });
-        console.log(selectedCookies);
 
         $(cookieTable.$('tr.selected')).remove();
         removeSelectedCookies(selectedCookies);
@@ -382,24 +425,27 @@ function initializeDataTable(tableName, lengthOption) {
     $('#' + tableName).dataTable();
 }
 
+/*
+
+*/
+//TODO Rename parameter?
+//TODO Continue code review (reorganize stuff?)
 function createGraph(array) {
     // points array represents all of the nodes displayed
     var points = [];
     var domains = {};
     var data = array[0];
     var styleJson = array[1];
-    var infoTemplate = '<p class="name">{{name}}</p>';
     var cy = cytoscape({
-
         container: document.getElementById('cy'), // container to render in
         style: styleJson
     });
-    cy.on('select', 'node', function (e) {
+    cy.on('select', 'node', function (e) { // On click (select)
         var node = this;
         $('#search').val(''); // clears anything in the search box
         highlight(node);
     });
-    cy.on('unselect', 'node', function (e) {
+    cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
         var node = this;
         $('#search').val('');
         clear();
@@ -738,26 +784,6 @@ function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
     });
 }
 
-function removeAllCookies() {
-    chrome.cookies.getAll({},
-        function (cookies) {
-            var startNum = cookies.length;
-            for (var j = 0; j < cookies.length; j++) {
-                var cookie = cookies[j];
-
-                if (cookie.domain.charAt(0) != '.') {
-                      deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
-                } else {
-                    cookie.domain = cookie.domain.substring(1, cookie.domain.length)
-                    deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
-                }
-            }
-            var endNum = cookies.length - startNum;
-            console.log(endNum);
-        });
-    location.reload();
-};
-
 function openWebapp() {
     var newURL = '/webapp.html';
     chrome.tabs.create({
@@ -765,24 +791,11 @@ function openWebapp() {
     });
 };
 
-$(function () {
-    $('#DeleteAll').click(removeAllCookies);
-    getAllCookies();
-    $('#WebApp').click(openWebapp);
-    $('#SelectAllPopup').click(selectAllInTablePopup);
-    $('#SelectAllWebapp').click(selectAllInTableWebapp)
-});
-
-
-// section for displaying tabs
-var tabLinks = new Array();
-var contentDivs = new Array();
-
-function init() {
+//TODO (Emma) - Explain what is going on here in code review
+function initializeTabs() {
     // Grab the tab links and content divs from the page
     var tabListItems = document.getElementById('tabs').childNodes;
     for (var i = 0; i < tabListItems.length; i++) {
-        console.log('test');
         if (tabListItems[i].nodeName == 'LI') {
             var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
             var id = getHash(tabLink.getAttribute('href'));
@@ -842,6 +855,7 @@ function getHash(url) {
     var hashPos = url.lastIndexOf('#');
     return url.substring(hashPos + 1);
 }
+
 function shortDomain(dom) {
         var split = dom.split('.');
         var finalString;

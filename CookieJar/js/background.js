@@ -22,7 +22,7 @@
 // used to clear storage area when changing storage layout
 // chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
 
-
+//TODO Code review ALL of this (add comments as well)
 
 function getCurrentTab(callback) {
     chrome.tabs.query(

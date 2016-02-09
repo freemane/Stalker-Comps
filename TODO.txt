@@ -1,3 +1,5 @@
+Talk about webapp.css file (can it be split into webapp.css and popup.css)
+
 ADD FAQ
 
 PAPER
@@ -10,7 +12,7 @@ loading quickly
 	multiple graphs ie most recent, third party connections only
 
 display more info about cookies in table
-	on click!
+	on click! - sort of done! (Works, but needs a little work)
 
 delete all button only deletes visible cookies
 	when searching -done
