@@ -17,7 +17,7 @@ function removeSelectedCookies(selected) {
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-        location.reload();
+        //location.reload();
 };
 
 function deleteCookie(url,name,store, value,secure,callback){
@@ -52,15 +52,16 @@ function getAllCookies() {
     chrome.cookies.getAll({}, function (cookies) {
         var outputCookies = [];
         var newCookies = [];
-        outputCookies.push(['Name', 'Domain']);
+        outputCookies.push(['Name','Domain']);
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             //cook.expirationDate = 112233445566;
-            if(cook.expirationDate != 112233445566) {
-              var key = cook.domain.concat(cook.name);
+            // if(cook.expirationDate != 112233445566) {
+            var key = cook.domain.concat(cook.name);
               //put cookies into table format
-              outputCookies.push([cook.name, cook.domain]);
-            }
+            outputCookies.push([cook.name, cook.domain]);
+              //outputCookies.push([$("#")])
+            // }
 
         }
         $('.count').append('<p>Number of total cookies: ' + cookies.length + '</p>');
@@ -190,6 +191,69 @@ function selectAllInTableWebapp() {
     }
 }
 
+/**
+ * Given cookie data, return a string with the HTML for a small table that includes the cookie information
+ * Formatted the date from milliseconds since UNIX epoch to an actual time
+ */
+function format(cook) {
+    //console.log("Formatted");
+    var date = new Date(cook.expirationDate * 1000);
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>Name:</td>'+
+            '<td>'+cook.name+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Value:</td>'+
+            '<td>'+cook.value+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Domain:</td>'+
+            '<td>'+cook.domain+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>HTTP Only:</td>'+
+            '<td>'+cook.httpOnly+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Host Only:</td>'+
+            '<td>'+cook.hostOnly+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Expiration Date</td>'+
+            '<td>'+date+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Secure:</td>'+
+            '<td>'+cook.secure+'</td>'+
+        '</tr>'+
+    '</table>';
+}
+
+function expand(tableName,row,data,table) {
+    var rows = $('#'+tableName+' > tbody > tr');
+    for(var i = 0;i<rows.length;i++) {
+        if($(rows[i]).hasClass('selected')) {
+            chrome.cookies.getAll({},function(cookies) {
+                for(var j = 0;j<cookies.length;j++) {
+                    var cook = cookies[j];
+                    // console.log(data[0]+":"+data[1]);
+                    // console.log(cook.name+":"+cook.domain);
+                    if((data[0] == cook.name)&&(data[1] == cook.domain)) {
+                        // Found the cookie
+                        console.log("FOUND");
+                        // var curRow = table.row(tr);
+                        row.child(format(cook)).show();
+                        // $(rows[i]).append(format(cook));
+                        break;
+                    }
+                }
+            });
+        }
+    }
+}
+
+
 /*
 As opposed to createTable, this function incorporates DataTables functionality
 to finalize the creation of the table. It adds the ability to select and
@@ -199,6 +263,13 @@ Allows for shift clicking to select multiple rows at once
 function initializeDataTable(tableName, lengthOption) {
     var cookieTable = $('#' + tableName).DataTable({
         'lengthMenu': lengthOption
+        // 'columns': [
+        //     {
+        //         "className": "details-control" 
+        //     },
+        //     {"data":"Name"},
+        //     {"data":"Domain"}
+        // ]
     });
 
     // allows a single row to be selected
@@ -209,10 +280,8 @@ function initializeDataTable(tableName, lengthOption) {
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift');
             } else {
-                //cookieTable.$('tr.shift'); //.removeClass('selected');
                 $(this).addClass('shift');
             }
-            // var rows = $('#'+tableName+' > tbody > tr');
             var firstSelectedIndex = -1;
             var shiftSelectedIndex = -1;
             for(var i = 0;i<rows.length;i++) {
@@ -247,27 +316,43 @@ function initializeDataTable(tableName, lengthOption) {
                 if($(rows[i]).hasClass('shift')) {
                     $(rows[i]).removeClass('shift')
                 }
+                if($(rows[i]).hasClass('shown')) {
+                    $(rows[i]).removeClass('shown');
+                }
             }
+            var tr = $(this).closest('tr');
+            var row = cookieTable.row( tr );
             if ($(this).hasClass('selected')) {
                 $(this).removeClass('selected');
+                if ( row.child.isShown() ) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                    expand(tableName,row,data,cookieTable);
+                    tr.addClass('shown');
+                }
             } else {
                 cookieTable.$('tr.selected'); //.removeClass('selected');
                 $(this).addClass('selected');
+                var tr = $(this).closest('tr');
+                var row = cookieTable.row( tr );
+                console.log(tr);
+                if ( row.child.isShown() ) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+                    expand(tableName,row,data,cookieTable);
+                    tr.addClass('shown');
+                }
             }
             if ($(this).hasClass('shift')) {
                 $(this).removeClass('shift')
-            }
-            
+            }    
         }
-        
-        
-        // $(this).click(function(e) {
-        //     if(e.shiftKey) {
-        //         console.log("shift-click detected");
-        //     }
-
-        // });
-
     });
 
     // button removes selected rows
