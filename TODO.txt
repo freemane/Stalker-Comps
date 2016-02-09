@@ -1,3 +1,6 @@
+On first load, show faq
+	Commented-out code on the background script
+
 Fix min/max zoom
 
 Try to figure out where you are if you zoom out/in too much (maybe change the bg color of the actual graph?)
