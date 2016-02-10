@@ -146,36 +146,33 @@ function createTable(data, cookieDiv, options) {
     table.setAttribute('id', tableName);
     table.setAttribute('width', tableWidth);
     table.setAttribute('cellspacing', '0');
-
+    
     // convert first array in array to the HTML header row
-    //TODO - Consolidate the forEach calls to format the rows within the table
     var headerData = data.slice(0, 1)[0];
-    var row = document.createElement('tr');
-    headerData.forEach(function (cellData) {
-        var cell = document.createElement('th');
-        cell.appendChild(document.createTextNode(cellData));
-        row.appendChild(cell);
-    });
-    tableHeader.appendChild(row);
+    tableHeader.appendChild(createRowElements('th', headerData));
+    table.appendChild(tableHeader);
 
     // convert the rest of the array into the HTML data
     var tableData = data.slice(1, data.length);
     tableData.forEach(function (rowData) {
-        var row = document.createElement('tr');
-        rowData.forEach(function (cellData) {
-            var cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(cellData));
-            row.appendChild(cell);
-        });
-        tableBody.appendChild(row);
+        tableBody.appendChild(createRowElements('td', rowData));
     });
-
-    table.appendChild(tableHeader);
     table.appendChild(tableBody);
 
     $(cookieDiv).append(table);
     initializeDataTable(tableName, lengthOption);
 };
+
+// Function to add cells to row
+function createRowElements(cellType, rowData) {
+    var row = document.createElement('tr');
+    rowData.forEach(function (cellData) {
+        var cell = document.createElement(cellType);
+        cell.appendChild(document.createTextNode(cellData));
+        row.appendChild(cell);
+    });
+    return row;    
+}
 
 /**
  * Function that allows for the user to select all cookies in the current table 
@@ -430,11 +427,11 @@ function initializeDataTable(tableName, lengthOption) {
 }
 
 /*
-
+Creates the Cytoscape graph.
 */
 //TODO Continue code review (reorganize stuff?)
 function createGraph(args) {
-    // points array represents all of the nodes displayed
+    // points array represents all of the objects (nodes and edges) displayed
     var points = [];
 
     // Set of domains we have already created a node for
@@ -445,9 +442,11 @@ function createGraph(args) {
         container: document.getElementById('cy'), // container to render in
         style: styleJson
     });
+    
     cy.on('select', 'node', function (e) { // On click (select)
         var node = this;
         $('#search').val(''); // clears anything in the search box
+        clear();
         highlight(node);
         createTooltip(node);
     });
@@ -455,7 +454,6 @@ function createGraph(args) {
     cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
         var node = this;
         $('#search').val('');
-        clear();
     });
     
     // TODO - show qip after node is highlights. For some reason, having a lot of trouble...
@@ -482,7 +480,7 @@ function createGraph(args) {
         });
     }
 
-    //TODO return cookies to their original position
+    // Unselects selected/highlighed node, zooms out, and returns nodes to original positions
     function clear() {
         cy.batch(function () {
             cy.$('.highlighted').forEach(function (n) {
@@ -490,16 +488,27 @@ function createGraph(args) {
                     position: n.data('orgPos')
                 });
             });
-
             cy.elements().removeClass('highlighted').removeClass('faded');
         });
+        
+        // animation for zooming back to standard view
+        cy.animate({
+            fit: {
+                eles: cy.elements(),
+                padding: zoomPadding
+            },
+            duration: animationSpeed
+        });
+        
+        // returns objects to their original positions
+        cy.layout(layout);
     }
 
-    //TODO Figure out what these variables change in terms of animation speed, add comments accordingly
-    var layoutPadding = 50;
-    var layoutDuration = 500;
+    var animationSpeed = 500;
+    // zoomPadding:  amount the animation zooms out before zooming back in
+    var zoomPadding = 50;
 
-    // Used to zoom in on a node and organize it's connections accordingly
+    // Used to zoom in on a node and organize its connections accordingly
     function highlight(node) {
         var nhood = node.closedNeighborhood();
         cy.batch(function () {
@@ -513,16 +522,16 @@ function createGraph(args) {
             cy.stop().animate({
                 fit: {
                     eles: cy.elements(),
-                    padding: layoutPadding
+                    padding: zoomPadding
                 }
             }, {
-                duration: layoutDuration
-            }).delay(layoutDuration, function () {
+                duration: animationSpeed
+            }).delay(animationSpeed, function () {
                 nhood.layout({
                     name: 'concentric',
-                    padding: layoutPadding,
+                    padding: zoomPadding,
                     animate: true,
-                    animationDuration: layoutDuration,
+                    animationDuration: animationSpeed,
                     boundingBox: {
                         x1: npos.x - w / 2,
                         x2: npos.x + w / 2,
@@ -641,15 +650,7 @@ function createGraph(args) {
     cy.layout(layout);
 
     $('#reset').on('click', function () {
-        cy.animate({
-            fit: {
-                eles: cy.elements(),
-                padding: layoutPadding
-            },
-            duration: layoutDuration
-        });
         clear();
-        cy.layout(layout);
     });
 
     // zooms in on the most recent cookie centered on its domain
