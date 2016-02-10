@@ -549,10 +549,7 @@ function createGraph(args) {
     // Only display 100 cookies
     var amountToDisplay = Math.min(data.length,100);
     for (var i = 0; i < amountToDisplay; i++) {
-        console.log(data[i]);
-//        console.log(data[i]['domain']);
         var cook = data[i];
-//        console.log(cook.path);
         var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
         var key = mainDomain.concat(cook.name);
         getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
@@ -819,11 +816,8 @@ function createGraph(args) {
                 };
 
                 var cType = n.data('type');
-                //console.log(cType + ' ' + !domain + ' ' + !cookie);
                 if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie)) {
-                    console.log('filter call');
                     filter();
-                    //                    cy.layout(layout);
                 }
             });
         });
