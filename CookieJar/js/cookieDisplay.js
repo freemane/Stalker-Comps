@@ -451,15 +451,28 @@ function createGraph(args) {
         clear();
     });
     
+    // TODO - show qip after node is highlights. For some reason, having a lot of trouble...
     function createTooltip(node) {
-        // TODO - for qtip to show more data, we'll need to store more when we make the nodes
-        // TODO - perhaps qtip should show until new node is selected
+        // domain (parent) nodes do not have the same amount of info as cookie nodes
+        if (node.data('type') == 'domain') {
+            var qtipContent = '<b>'+node.data('type')+':  '+node.data('searchData')+
+                              '</b><br>'+node.data('fullDomain')+node.data('path');
+        } else {
+            var qtipContent = '<b>'+node.data('type')+':  '+node.data('name')+
+                              '</b><br>Path:  '+node.data('fullDomain')+node.data('path')+
+                              '<br>HttpOnly?  '+node.data('httpOnly')+
+                              '<br>Secure?  '+node.data('secure')+
+                              '<br>Session?  '+node.data('session')+
+                              '<br>Expiration:  '+node.data('expirationDate')+
+                              '<br>Value:  '+node.data('value');
+        }
+        
         node.qtip({
-            content: node.data('type')+'<br>'+node.data('searchData'),
+            content: qtipContent,
             style: {
                 classes: 'qtip-bootstrap'
             }
-        });     
+        });
     }
 
     //TODO return cookies to their original position
@@ -529,7 +542,10 @@ function createGraph(args) {
     // Only display 100 cookies
     var amountToDisplay = Math.min(data.length,100);
     for (var i = 0; i < amountToDisplay; i++) {
+        console.log(data[i]);
+//        console.log(data[i]['domain']);
         var cook = data[i];
+//        console.log(cook.path);
         var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
         var key = mainDomain.concat(cook.name);
         getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
@@ -537,14 +553,18 @@ function createGraph(args) {
             var parent = {
                 'data': {
                     'id': mainDomain,
-                    'weight': 2,
+                    'type': 'domain',
                     'name': mainDomain,
+                    'fullDomain': cook.domain,
+                    'path': cook.path, // should this be included in parent data?
+                    'searchData': mainDomain,
+                    
+                    // settings for cytoscape formatting
+                    'weight': 2,
                     'color': '#666',
                     'image': 'https://', //TODO add image to the parent nodes here (possibly jar?)
                     'nodeWidth': '100',
                     'nodeHeight': '100',
-                    'type': 'domain',
-                    'searchData': mainDomain, //TODO look into adding additional fields for the tooltips
                 },
                 'removed': false,
                 'selected': false,
@@ -559,15 +579,27 @@ function createGraph(args) {
         var node = {
             'data': {
                 'id': key,
-                'domain': mainDomain,
-                'weight': 1,
+                'type': 'cookie',
                 'name': cook.name,
+                'value': cook.value,
+                'domain': mainDomain,
+                'fullDomain': cook.domain,
+                'path': cook.path,
+                'secure': cook.secure,
+                // if httpOnly is true, cookie is inaccessible to client-side scripts 
+                //   (prevents potentially sensitive cookie info from being sent)
+                // http://www.troyhunt.com/2013/03/c-is-for-cookie-h-is-for-hacker.html
+                'httpOnly': cook.httpOnly,
+                'session': cook.session,
+                'expirationDate': cook.expirationDate,
+                'searchData': mainDomain + '/' + cook.name,
+                
+                // settings for cytoscape formatting
+                'weight': 1,
                 'color': '#666',
                 'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png',
                 'nodeWidth': '25',
                 'nodeHeight': '25',
-                'type': 'cookie',
-                'searchData': mainDomain + '/' + cook.name
             },
 
             'removed': false,
