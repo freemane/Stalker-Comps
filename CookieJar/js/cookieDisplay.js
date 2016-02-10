@@ -449,12 +449,25 @@ function createGraph(args) {
         var node = this;
         $('#search').val(''); // clears anything in the search box
         highlight(node);
+        createTooltip(node);
     });
+    
     cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
         var node = this;
         $('#search').val('');
         clear();
     });
+    
+    function createTooltip(node) {
+        // TODO - for qtip to show more data, we'll need to store more when we make the nodes
+        // TODO - perhaps qtip should show until new node is selected
+        node.qtip({
+            content: node.data('type')+'<br>'+node.data('searchData'),
+            style: {
+                classes: 'qtip-bootstrap'
+            }
+        });     
+    }
 
     //TODO return cookies to their original position
     function clear() {
