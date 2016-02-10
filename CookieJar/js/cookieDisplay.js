@@ -292,6 +292,91 @@ function expand(tableName,row,data,table) {
     }
 }
 
+/*
+Defines functionality for when a user clicks on a row while holding shift,
+allowingn for multiple cells to be selected
+*/
+function shiftClickSelect(curRow,rows) {
+    if (curRow.hasClass('shift')) {
+        curRow.removeClass('shift');
+    } else {
+        curRow.addClass('shift');
+    }
+    // Find the indices of the first selected cell and the shift-clicked cell
+    var firstSelectedIndex = -1;
+    var shiftSelectedIndex = -1;
+    for(var i = 0;i<rows.length;i++) {
+        if($(rows[i]).hasClass('selected') && firstSelectedIndex == -1){
+            firstSelectedIndex = i;
+        }
+        if($(rows[i]).hasClass('shift')) {
+            shiftSelectedIndex = i;
+        }
+    }
+    // Shift click from the top-down or bottom-up
+    var found = false;
+    for(var i = 0;i<rows.length;i++) {
+        if(i >= firstSelectedIndex && i <= shiftSelectedIndex) {
+            if (!$(rows[i]).hasClass('selected')) {
+                $(rows[i]).addClass('selected');
+                found = true;
+            }
+        }
+    }
+    if(!found) {
+        for(var i = rows.length-1;i>=0;i--) {
+            if(i <= firstSelectedIndex && i >= shiftSelectedIndex) {
+                if (!$(rows[i]).hasClass('selected')) {
+                    $(rows[i]).addClass('selected');
+                }
+            }
+        }
+    }
+}
+
+/*
+Defines functionality for when a user clicks on a row without holding shift,
+expanding the cell to show more info. 
+*/
+function regularSelect(curRow,rows,cookieTable,tableName){
+    //TODO - Remove unnecessary classes (selected, shift, shown)
+    for(var i = 0;i<rows.length;i++) {
+        if($(rows[i]).hasClass('shift')) {
+            $(rows[i]).removeClass('shift')
+        }
+    }
+    var tr = curRow.closest('tr');
+    var row = cookieTable.row( tr );
+    if (curRow.hasClass('selected')) {
+        curRow.removeClass('selected');
+        if ( row.child.isShown() ) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            /* 
+            tr is the table row object, children is an array with the name and domain of the cookie in the 
+            selected cell, and innerText refers to the text within the HTML element 
+            */
+            var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+            expand(tableName,row,data,cookieTable);
+            tr.addClass('shown');
+        }
+        
+    } else {
+        cookieTable.$('tr.selected'); //.removeClass('selected');
+        curRow.addClass('selected');
+        if ( tr.hasClass('shown') ) {
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+            expand(tableName,row,data,cookieTable);
+            tr.addClass('shown');
+        }
+    }
+}
 
 /*
 As opposed to createTable, this function incorporates DataTables functionality
@@ -307,95 +392,17 @@ function initializeDataTable(tableName, lengthOption) {
     });
 
     // allows a single row to be selected
-    //TODO - Messy as hell, clean up please (Cody)
     $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
         var rows = $('#'+tableName+' > tbody > tr');
         // If the shift key is down on the click event...
         if(e.shiftKey) {
-            if ($(this).hasClass('shift')) {
-                $(this).removeClass('shift');
-            } else {
-                $(this).addClass('shift');
-            }
-            // Find the indices of the first selected cell and the shift-clicked cell
-            var firstSelectedIndex = -1;
-            var shiftSelectedIndex = -1;
-            for(var i = 0;i<rows.length;i++) {
-                if($(rows[i]).hasClass('selected') && firstSelectedIndex == -1){
-                    firstSelectedIndex = i;
-                }
-                if($(rows[i]).hasClass('shift')) {
-                    shiftSelectedIndex = i;
-                }
-            }
-            // Shift click from the top-down or bottom-up
-            var found = false;
-            for(var i = 0;i<rows.length;i++) {
-                if(i >= firstSelectedIndex && i <= shiftSelectedIndex) {
-                    if (!$(rows[i]).hasClass('selected')) {
-                        $(rows[i]).addClass('selected');
-                        found = true;
-                    }
-                }
-            }
-            if(!found) {
-                for(var i = rows.length-1;i>=0;i--) {
-                    if(i <= firstSelectedIndex && i >= shiftSelectedIndex) {
-                        if (!$(rows[i]).hasClass('selected')) {
-                            $(rows[i]).addClass('selected');
-                        }
-                    }
-                }
-            }
+            shiftClickSelect($(this),rows);
         }
+        // Otherwise...
         else {
-            //TODO -  Remove unnecessary classes (selected, shift, shown)
-            for(var i = 0;i<rows.length;i++) {
-                if($(rows[i]).hasClass('shift')) {
-                    $(rows[i]).removeClass('shift')
-                }
-                if($(rows[i]).hasClass('shown')) {
-                    $(rows[i]).removeClass('shown');
-                }
-            }
-            var tr = $(this).closest('tr');
-            var row = cookieTable.row( tr );
-            if ($(this).hasClass('selected')) {
-                $(this).removeClass('selected');
-                if ( row.child.isShown() ) {
-                    row.child.hide();
-                    tr.removeClass('shown');
-                }
-                else {
-                    //TODO  - Explain what this is
-                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-                    expand(tableName,row,data,cookieTable);
-                    tr.addClass('shown');
-                }
-                // else {
-                    
-                // }
-                
-            } else {
-                cookieTable.$('tr.selected'); //.removeClass('selected');
-                $(this).addClass('selected');
-                var tr = $(this).closest('tr');
-                var row = cookieTable.row( tr );
-                //console.log(tr);
-                if ( tr.hasClass('shown') ) {
-                    row.child.hide();
-                    tr.removeClass('shown');
-                }
-                else {
-                    var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-                    expand(tableName,row,data,cookieTable);
-                    tr.addClass('shown');
-                }
-            }
-            if ($(this).hasClass('shift')) {
-                $(this).removeClass('shift')
-            }    
+            regularSelect($(this),rows,cookieTable,tableName);
         }
+            
     });
 
     // button removes selected rows
