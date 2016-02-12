@@ -30,6 +30,8 @@ zombie cookies?
 	can we even identify them
     -- no
 
+Popover text for things that may not be intuitive. WTF - What's this feature?
+
 PRESENTATION
 Should we.... make a google presentation? Prezi? Thoughts?
 
@@ -60,6 +62,9 @@ More usability testing!
 	* Have them delete a cookie from the table
 	* Look at FAQ - FIND OUT IF MORE NEEDS TO BE ADDED
 	* Search for something on the graph/table
+	* Do they know they can expand the cookies in the table?
+	* Was the app functional? intuitive? easily navigable? 
+	* How did using the app feel? 
 	* Thoughts on navigability, aesthetic 
 
 
