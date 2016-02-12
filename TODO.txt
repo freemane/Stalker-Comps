@@ -3,15 +3,14 @@ On first load, show faq
 
 Fix min/max zoom
 
-Try to figure out where you are if you zoom out/in too much (maybe change the bg color of the actual graph?)
+Try to figure out where you are if you zoom out/in too much (maybe change the bg color of the actual graph?) - add a black outline around graph?
 
 Look into adding related domains to the expanded cookie cell in the webapp
 
-Talk about webapp.css file (can it be split into webapp.css and popup.css)
+PAPER - are we leaving this until after presentations?
 
-ADD FAQ
-
-PAPER
+When you select multiple rows in table: can't happen unless first selection is expanded
+	Can we change this?
 
 loading quickly
 	either fewer cookies
@@ -31,17 +30,19 @@ zombie cookies?
 	can we even identify them
     -- no
 
+PRESENTATION
+Should we.... make a google presentation? Prezi? Thoughts?
+
 POPUP
 	* Do we want the table to only show related cookies to your current page?
 		or possibly most recent cookies/ something else
-	* css - do we want this to look like the web app?
-		might be too dark of a color scheme
+	* css - change font color to match table in web app, fonts to dark grey
 	* what info do we want included?
 	filters
 		only relevant(how is that defined?) cookies
 
-editing cookies
-	officially scrapping this?
+FAQ
+Change on clicked color of titles
 
 cutting domains down -done
 	fix-- Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
@@ -57,11 +58,10 @@ PAPER!!!!
 More usability testing!
 	* Ask about user knowledge about cookies before
 	* Have them delete a cookie from the table
-	* Look at FAQ
+	* Look at FAQ - FIND OUT IF MORE NEEDS TO BE ADDED
 	* Search for something on the graph/table
 	* Thoughts on navigability, aesthetic 
 
 
 PROBLEMS:
-Why does the graph only load if it's the first tab?
 If a cookie cannot be deleted, do we want a notification to alert the user?
