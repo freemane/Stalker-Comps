@@ -14,8 +14,8 @@ $(function () {
     $('#DeleteAll').click(removeAllCookies);
     getAllCookies();
     $('#WebApp').click(openWebapp);
-    $('#SelectAllPopup').click(selectAllInTablePopup);
-    $('#SelectAllWebapp').click(selectAllInTableWebapp)
+    $('#SelectAll').click(selectAll);
+    $('#UnselectAll').click(unselectAll);
 });
 
 /*
@@ -95,6 +95,7 @@ function getAllCookies() {
         var outputCookies = [];
         var newCookies = [];
         outputCookies.push(['Name','Domain']);
+        // outputCookies.push(['Name','Domain','Select']);
 
         //put cookies into table format
 
@@ -102,6 +103,9 @@ function getAllCookies() {
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name); 
+            // var showMoreButton = $("button").on('click',function() {
+            //     exp
+            // });
             outputCookies.push([cook.name, cook.domain]);
         }
 
@@ -174,68 +178,26 @@ function createRowElements(cellType, rowData) {
     return row;    
 }
 
-/**
- * Function that allows for the user to select all cookies in the current table 
- * Only works in the POPUP
- */
-function selectAllInTablePopup() {
+/*
+Function that allows for the user to select all cookies in the current table 
+*/
+function selectAll() {
     var tableName = "cookieTablePopup";
-    // console.log($(tableName));
-    // if($(tableName) == null) {
-    //     tableName = "cookieTableWebapp";
-    // }
+    if(!$("#"+tableName).length) { // The webapp is open
+        tableName = "cookieTableWebapp";
+    }
     var rows = $('#'+tableName+' > tbody > tr');
     for(var i = 0;i<rows.length;i++) {
-        if($("#SelectAllPopup").val() == 'Select All') {
-            if(!$(rows[i]).hasClass('selected')) {
-                $(rows[i]).addClass('selected');
-            }
+        if(!$(rows[i]).hasClass('selected')) {
+            $(rows[i]).addClass('selected');
         }
-        else {
-            if($(rows[i]).hasClass('selected')) {
-                $(rows[i]).removeClass('selected');
-            }
-        }
-    }
-    if($("#SelectAllPopup").val() == 'Select All') {
-        $("#SelectAllPopup").val('Unselect All');
-    }
-    else {
-        $("#SelectAllPopup").val('Select All');
     }
 }
 
-/**
- * Function that allows for the user to select all cookies in the current table 
- * Only works in the WEBAPP
- */
-function selectAllInTableWebapp() {
-    var tableName = "cookieTableWebapp";
-    var rows = $('#'+tableName+' > tbody > tr');
-    for(var i = 0;i<rows.length;i++) {
-        if($("#SelectAllWebapp").val() == 'Select All') {
-            if(!$(rows[i]).hasClass('selected')) {
-                $(rows[i]).addClass('selected');
-            }
-        }
-        else {
-            if($(rows[i]).hasClass('selected')) {
-                $(rows[i]).removeClass('selected');
-            }
-        }
-    }
-    if($("#SelectAllWebapp").val() == 'Select All') {
-        $("#SelectAllWebapp").val('Unselect All');
-    }
-    else {
-        $("#SelectAllWebapp").val('Select All');
-    }
-}
-
-/**
- * Given cookie data, return a string with the HTML for a small table that includes the cookie information
- * Formatted the date from milliseconds since UNIX epoch to an actual time
- */
+/*
+Given cookie data, return a string with the HTML for a small table that includes the cookie information
+Formatted the date from milliseconds since UNIX epoch to an actual time
+*/
 function format(cook) {
     //console.log("Formatted");
     var date = new Date(cook.expirationDate * 1000);
@@ -271,6 +233,9 @@ function format(cook) {
     '</table>';
 }
 
+/*
+
+*/
 function expand(tableName,row,data,table) {
     var rows = $('#'+tableName+' > tbody > tr');
     for(var i = 0;i<rows.length;i++) {
@@ -289,9 +254,53 @@ function expand(tableName,row,data,table) {
     }
 }
 
+// TODO Double click
+
+function doubleClickExpand(tableName,curRow,data,table) {
+    var tr = curRow.closest('tr');
+    var row = cookieTable.row( tr );
+
+    if($(curRow).hasClass('shown')){
+        row.child.hide();
+        tr.removeClass('shown');
+    }
+    else {
+        var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
+        expand(tableName,curRow,data,cookieTable);
+        tr.addClass('shown');
+    } 
+}
+
+/*
+Unselect all previously selected cells in the table
+*/
+function unselectAll() {
+    var tableName = "cookieTableWebapp";
+    if(!$("#"+tableName).length) { // The webapp is open
+        tableName = "cookieTablePopup"
+    }
+    var cookieTable = $("#"+tableName);
+    console.log(cookieTable);
+    var rows = $('#'+tableName+' > tbody > tr');
+    for(var i = 0;i<rows.length;i++) {
+        var tr = $(rows[i]).closest('tr');
+        var row = cookieTable.row( tr );
+        if($(rows[i]).hasClass('selected')) {
+            $(rows[i]).removeClass('selected');
+        }
+        if($(rows[i]).hasClass('shift')) {
+            $(rows[i]).removeClass('shift');
+        }
+        if(row.child.isShown()) {
+            row.child.hide();
+            $(rows[i]).removeClass('shown');
+        }
+    }
+}
+
 /*
 Defines functionality for when a user clicks on a row while holding shift,
-allowingn for multiple cells to be selected
+allowing for multiple cells to be selected
 */
 function shiftClickSelect(curRow,rows) {
     if (curRow.hasClass('shift')) {
@@ -399,7 +408,10 @@ function initializeDataTable(tableName, lengthOption) {
         else {
             regularSelect($(this),rows,cookieTable,tableName);
         }
-            
+    });
+
+    $('#' + tableName + ' tbody').on('dbclick','tr',function() {
+        doubleClickExpand(tableName,row,cookieTable);
     });
 
     // button removes selected rows
@@ -468,7 +480,7 @@ function createGraph(args) {
                               '<br>HttpOnly?  '+node.data('httpOnly')+
                               '<br>Secure?  '+node.data('secure')+
                               '<br>Session?  '+node.data('session')+
-                              '<br>Expiration:  '+node.data('expirationDate')+
+                              '<br>Expiration:  '+new Date(node.data('expirationDate')*1000)+
                               '<br>Value:  '+node.data('value');
         }
         
