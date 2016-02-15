@@ -81,48 +81,6 @@ function deleteCookie(url,name,store,value,secure,callback){
 	});
 }
 
-/*
-In addition to getting all cookies, also creates an array (outputCookies) with data
-for the HTML table.
-*/
-function getAllCookies() {
-    var styleP = $.ajax({
-        url: './css/graphStyle.cycss',
-        type: 'GET',
-        dataType: 'text'
-    });
-    chrome.cookies.getAll({}, function (cookies) {
-        var outputCookies = [];
-        var newCookies = [];
-        outputCookies.push(['Name','Domain']);
-        // outputCookies.push(['Name','Domain','Select']);
-
-        //put cookies into table format
-
-        //TODO - See if we can pass the unmodified cookies, keep headers same
-        for (var i = 0; i < cookies.length; i++) {
-            var cook = cookies[i];
-            var key = cook.domain.concat(cook.name); 
-            // var showMoreButton = $("button").on('click',function() {
-            //     exp
-            // });
-            outputCookies.push([cook.name, cook.domain]);
-        }
-
-        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
-
-        createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
-            [10, 20, 50, -1],
-            [10, 20, 50, 'All']
-        ]])
-        createTable(outputCookies, '#outputCookies', ['cookieTableWebapp', '100%', [
-            [15, 25, 100, -1],
-            [15, 25, 100, 'All']
-        ]]);
-
-        Promise.all([cookies, styleP]).then(createGraph);
-    });
-};
 
 /*
 Creates the table in both the webapp and the popup. It converts array, called data,
