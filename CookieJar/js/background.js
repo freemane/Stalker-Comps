@@ -1,17 +1,4 @@
 // from http://stackoverflow.com/a/16504563
-
-
-//On first run opens our FAQ/getting started page (eventually), 
-//var firstRunURL = "http://google.com"
-//var currentVersion = chrome.app.getDetails().version;
-//var oldVersion = data.lastVersionRun;
-//data.lastVersionRun = currentVersion;
-//if (oldVersion != currentVersion) {
-//    if (oldVersion== undefined) {
-//        chrome.tabs.create({url: firstRunURL});
-//    } 
-//}
-    
         
 //chrome.browserAction.onClicked.addListener(function(activeTab){
 //  var newURL = "chrome://settings/cookies";
@@ -23,6 +10,22 @@
 // chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
 
 //TODO Code review ALL of this (add comments as well)
+
+
+// On first run opens our FAQ/getting started page (eventually)
+function handleFirstRun() {
+    var firstRunURL = '/webapp.html#faq';
+    var currentVersion = chrome.app.getDetails().version;
+    console.log(currentVersion);
+    var oldVersion = chrome.storage.local.get('lastVersionRun', function(item) {
+        var oldVersion = item.lastVersionRun;
+        if (oldVersion != currentVersion) {
+            chrome.tabs.create({url: firstRunURL});
+        }
+        chrome.storage.local.set({'lastVersionRun':currentVersion},handleError);
+    });
+}
+handleFirstRun();
 
 /*
 Extracts the subdomain and domain from a url. Removes http://, and /.../..
