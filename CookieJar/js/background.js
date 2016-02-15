@@ -7,7 +7,7 @@
 
 
 // used to clear storage area when changing storage layout
-// chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
+//chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
 
 //TODO Code review ALL of this (add comments as well)
 
@@ -89,7 +89,8 @@ function setDomainInfo(key,domain,callback) {
         }
         setObject['domains'][domain]++;
         setObject['count']++;
-        var newObj = {key:setObject};
+        var newObj = {};
+        newObj[key] = setObject;
         chrome.storage.local.set(newObj, callback);
     });
 }
@@ -132,12 +133,15 @@ function getCookiesFromHeaders(headers, domain) {
         if (headerName.toLowerCase() === 'cookie') {
             cookies = headerVal.split(';');
         }
+        if (headerName.toLowerCase() === 'set-cookie') {
+            cookies.push(headerVal.split('=')[0]);
+        }
         if (headerName.toLowerCase() === 'referer') {
             referer = shortDomain(extractDomain(headerVal));
         }
     }
     //Checks to make sure only storing 3rd party headers
-    if (domain != referer) {
+    if (domain != referer && referer.length>0) {
         for (var i = 0; i<cookies.length;++i) {
             var cook = cookies[i];
             var key = domain.concat(cook.split('=')[0].trim());

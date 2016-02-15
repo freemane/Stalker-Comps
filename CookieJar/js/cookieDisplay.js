@@ -526,12 +526,12 @@ function createGraph(args) {
     };
     
     // Only display 100 cookies
-    var amountToDisplay = Math.min(data.length,100);
+    var amountToDisplay = Math.min(data.length,1000);
+    getStoredDomains();
     for (var i = 0; i < amountToDisplay; i++) {
         var cook = data[i];
         var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
         var key = mainDomain.concat(cook.name);
-        getStoredDomains(key, cook, cy, domains, createThirdPartyEdges);
         if (!(mainDomain in domains)) {
             var parent = {
                 'data': {
@@ -687,20 +687,50 @@ function createGraph(args) {
         return biggestNode;
     }
 
-    function createThirdPartyEdges(cook, domains, cy, domainsAdded) {
-        if (Object.keys(domains).length < 1) {
+    /*
+
+    Callback is the createThirdPartyEdges function in the createGraph function 
+    */
+    function getStoredDomains() {
+        chrome.storage.local.get(null, function (obj) {
+            console.log(obj);
+            if (typeof obj ==='undefined') {
+                return;
+            }
+            for (var key in obj){
+                if (typeof obj[key]['domains'] === 'undefined') {
+                    continue;
+                }
+                createThirdPartyEdges(key, obj[key]['domains']);
+            }
+        });
+    };
+
+    function createThirdPartyEdges(key,domainsToAdd) {
+        console.log("1");
+        if (Object.keys(domainsToAdd).length < 1) {
             return;
         }
-        var cookDom = shortDomain(cook.domain);
+        console.log("2");
+
+        // var cookDom = shortDomain(cook.domain);
         var edges = [];
-        for (var dom in domains) { 
+        for (var dom in domainsToAdd) { 
+            console.log("3".concat(dom));
             dom = shortDomain(dom);
-            if (dom != cookDom && domainsAdded[dom]) {
+            var different= false;
+            for (var i=0;i<dom.length;++dom){
+                if (dom.charAt(i)!=key.charAt(i)){
+                    different = true;
+                    break;
+                }
+            }
+            if (different && domains[dom]) {
                 var edgeObj = {
                     data: {
-                        'id': cookDom.concat('-edge-').concat(dom),
-                        'class': cookDom,
-                        source: cookDom,
+                        'id': key.concat('-edge-').concat(dom),
+                        'class': key,
+                        source: key,
                         target: dom,
                         'color': '#000000',
                         'lineStyle': 'dashed',
@@ -709,7 +739,7 @@ function createGraph(args) {
                 };
                 edges.push(edgeObj);
                 console.log('3rd party cookie: '.concat(dom));
-            } else if (!domainsAdded[dom]) {
+            } else if (!domains[dom]) {
                 console.log('not valid cookie dom: '.concat(dom));
             }
         }
@@ -792,19 +822,6 @@ function createGraph(args) {
                 }
             });
         });
-    });
-}
-
-/*
-
-Callback is the createThirdPartyEdges function in the createGraph function 
-*/
-function getStoredDomains(key, cookie, cy, domainsAdded, callback) {
-    chrome.storage.local.get(key, function (obj) {
-        if (typeof obj === 'undefined' || typeof obj[key] === 'undefined') {
-            return callback(cookie, {});
-        }
-        return callback(cookie, obj[key]['domains'], cy, domainsAdded);
     });
 }
 
