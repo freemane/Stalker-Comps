@@ -415,9 +415,15 @@ function createGraph(args) {
     
     cy.on('select', 'node', function (e) { // On click (select)
         var node = this;
-        $('#search').val(''); // clears anything in the search box
-        clear();
-        highlight(node);
+        // prevents animation from happening for cookies
+        if (node.data('type') == 'domain') {
+            $('#search').val(''); // clears anything in the search box
+            highlight(node);
+        };
+        // TODO/QUESTION - show neighborhood instead of cookie -- do we want this?
+        if (node.data('type') == 'cookie') {
+            selectDomainOfCookie(node);
+        };
         createTooltip(node);
     });
     
@@ -469,9 +475,6 @@ function createGraph(args) {
             },
             duration: animationSpeed
         });
-        
-        // returns objects to their original positions
-        cy.layout(layout);
     }
 
     var animationSpeed = 500;
@@ -553,7 +556,7 @@ function createGraph(args) {
                 'selected': false,
                 'selectable': true,
                 'locked': false,
-                'grabbable': true,
+                'grabbable': false,
             };
             points.push(parent);
             domains[mainDomain] = true;
@@ -587,9 +590,9 @@ function createGraph(args) {
 
             'removed': false,
             'selected': false,
-            'selectable': true,
+            'selectable': true, // less undesirable zoom animation if false, can't search if false
             'locked': false,
-            'grabbable': true,
+            'grabbable': false,
         };
         // Connects domains to their cookies
         var edgeObj = {
@@ -601,7 +604,8 @@ function createGraph(args) {
                 'color': '#ccc',
                 'lineStyle': 'solid',
                 'weight': '2'
-            }
+            },
+            'selectable': 'false'
         };
         points.push(node);
         points.push(edgeObj);
@@ -621,26 +625,42 @@ function createGraph(args) {
 
     $('#reset').on('click', function () {
         clear();
+        // returns objects to their original positions
+        cy.layout(layout);
     });
 
-    // zooms in on the most recent cookie centered on its domain
-    //TODO zoom in on COOKIE instead of domain
+    // zooms in on the domain with the most recent cookie
     $('#mostRecent').on('click', function () {
+        cy.nodes().unselect(); // by having unselect in here, tooltips work better
         cy.layout(layout);
         var node = cy.nodes()[cy.nodes().length - 1];
-        highlight(node);
+        selectDomainOfCookie(node);
     });
+    
+    function selectDomainOfCookie(node) {
+        var nodeDomain;
+        node.closedNeighborhood().forEach(function (n) {
+            if (n.data('type') == 'domain') {
+                nodeDomain = n;
+            };
+        });
+        nodeDomain.select();
+    }
 
     // zooms in on the domain with the most cookies
     $('#mostCookies').on('click', function () {
+        cy.nodes().unselect();
         cy.layout(layout);
-        highlight(getNodeWithMostEdges(2));
+        var node = getNodeWithMostEdges(2);
+        node.select();
     });
 
     // zooms in on the domain with the most third party connections
     $('#mostThirdParty').on('click', function () {
+        cy.nodes().unselect();
         cy.layout(layout);
-        highlight(getNodeWithMostEdges(1));
+        var node = getNodeWithMostEdges(1);
+        node.select();
     });
 
     // zooms in on the domain with the most connections (edges)
@@ -657,7 +677,7 @@ function createGraph(args) {
             });
 
         });
-        highlight(biggestNode);
+        biggestNode.select();
     });
 
     /*
@@ -705,7 +725,8 @@ function createGraph(args) {
                         'color': '#000000',
                         'lineStyle': 'dashed',
                         'weight': '1'
-                    }
+                    },
+                    'selectable': 'false'
                 };
                 edges.push(edgeObj);
                 console.log('3rd party cookie: '.concat(dom));
