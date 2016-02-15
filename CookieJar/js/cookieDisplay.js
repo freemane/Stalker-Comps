@@ -415,16 +415,18 @@ function createGraph(args) {
     
     cy.on('select', 'node', function (e) { // On click (select)
         var node = this;
+        createTooltip(node);
         // prevents animation from happening for cookies
         if (node.data('type') == 'domain') {
             $('#search').val(''); // clears anything in the search box
             highlight(node);
         };
         // TODO/QUESTION - show neighborhood instead of cookie -- do we want this?
+        // I think we do -Robert
         if (node.data('type') == 'cookie') {
             selectDomainOfCookie(node);
         };
-        createTooltip(node);
+        
     });
     
     cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
@@ -484,6 +486,10 @@ function createGraph(args) {
     // Used to zoom in on a node and organize its connections accordingly
     function highlight(node) {
         var nhood = node.closedNeighborhood();
+        if (node.hasClass("highlighted")){
+            createTooltip(node);
+            return;
+        }
         cy.batch(function () {
             cy.elements().not(nhood).removeClass('highlighted').addClass('faded');
             nhood.removeClass('faded').addClass('highlighted');
@@ -529,7 +535,7 @@ function createGraph(args) {
     };
     
     // Only display 100 cookies
-    var amountToDisplay = Math.min(data.length,1000);
+    var amountToDisplay = Math.min(data.length,100);
     getStoredDomains();
     for (var i = 0; i < amountToDisplay; i++) {
         var cook = data[i];
@@ -713,7 +719,6 @@ function createGraph(args) {
     */
     function getStoredDomains() {
         chrome.storage.local.get(null, function (obj) {
-            console.log(obj);
             if (typeof obj ==='undefined') {
                 return;
             }
@@ -727,16 +732,13 @@ function createGraph(args) {
     };
 
     function createThirdPartyEdges(key,domainsToAdd) {
-        console.log("1");
         if (Object.keys(domainsToAdd).length < 1) {
             return;
         }
-        console.log("2");
 
         // var cookDom = shortDomain(cook.domain);
         var edges = [];
         for (var dom in domainsToAdd) { 
-            console.log("3".concat(dom));
             dom = shortDomain(dom);
             var different= false;
             for (var i=0;i<dom.length;++dom){
