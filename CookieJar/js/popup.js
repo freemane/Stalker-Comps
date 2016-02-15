@@ -1,38 +1,49 @@
 // var cookies = [];
-// function getCurrentTab () {
-// 	return chrome.tabs.getSelected(null, function(tab) {
-// 		return shortDomain(extractDomain(tab.url));
-// 	});
-// }
 
+function extractDomain(url) {
+    var domain;
+    //find & remove protocol (http, ftp, etc.) and get domain
+    if (url.indexOf("://") > -1) {
+        domain = url.split('/')[2];
+    }
+    else {
+        domain = url.split('/')[0];
+    }
+    //find & remove port number
+    domain = domain.split(':')[0];
+    return domain;
+}
 /*
 In addition to getting all cookies, also creates an array (outputCookies) with data
 for the HTML table.
 */
 function getAllCookies() {
-    chrome.cookies.getAll({}, function (cookies) {
-        var outputCookies = [];
-        var newCookies = [];
-        outputCookies.push(['Name','Domain']);
-        // outputCookies.push(['Name','Domain','Select']);
+	chrome.tabs.getSelected(null, function(tab){
+		tab = shortDomain(extractDomain(tab.url));
+	    chrome.cookies.getAll({'domain':tab}, function (cookies) {
+	        var outputCookies = [];
+	        var newCookies = [];
+	        outputCookies.push(['Name','Domain']);
+	        // outputCookies.push(['Name','Domain','Select']);
 
-        //put cookies into table format
+	        //put cookies into table format
 
-        //TODO - See if we can pass the unmodified cookies, keep headers same
-        for (var i = 0; i < cookies.length; i++) {
-            var cook = cookies[i];
-            var key = cook.domain.concat(cook.name); 
-            // var showMoreButton = $("button").on('click',function() {
-            //     exp
-            // });
-            outputCookies.push([cook.name, cook.domain]);
-        }
+	        //TODO - See if we can pass the unmodified cookies, keep headers same
+	        for (var i = 0; i < cookies.length; i++) {
+	            var cook = cookies[i];
+	            var key = cook.domain.concat(cook.name); 
+	            // var showMoreButton = $("button").on('click',function() {
+	            //     exp
+	            // });
+	            outputCookies.push([cook.name, cook.domain]);
+	        }
 
-        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
+	        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
 
-        createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
-            [10, 20, 50, -1],
-            [10, 20, 50, 'All']
-        ]])
-    });
+	        createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
+	            [10, 20, 50, -1],
+	            [10, 20, 50, 'All']
+	        ]])
+	    });
+	});
 }
