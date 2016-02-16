@@ -154,15 +154,7 @@ function createGraph(args) {
                     'fullDomain': cook.domain,
                     'path': cook.path, // should this be included in parent data?
                     'searchData': mainDomain,
-                    
-                    // settings for cytoscape formatting
                     'weight': 2,
-                    'color': '#666',
-                    'image': 'https://', //TODO add image to the parent nodes here (possibly jar?)
-                    'nodeWidth': '100',
-                    'nodeHeight': '100',
-                    'shape': 'polygon',
-                    'polygonPoints': '-1, -1,   1, -0.5,   1, 1,   -1, 0.5',
                 },
                 'removed': false,
                 'selected': false,
@@ -191,17 +183,8 @@ function createGraph(args) {
                 'session': cook.session,
                 'expirationDate': cook.expirationDate,
                 'searchData': mainDomain + '/' + cook.name,
-                
-                // settings for cytoscape formatting
                 'weight': 1,
-                'color': '#666',
-                'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Twemoji_1f36a.svg/2000px-Twemoji_1f36a.svg.png',
-                'nodeWidth': '25',
-                'nodeHeight': '25',
-                'shape': 'polygon',
-                'polygonPoints': '-1, -1,   1, -0.5,   1, 1,   -1, 0.5',
             },
-
             'removed': false,
             'selected': false,
             'selectable': true, // less undesirable zoom animation if false, can't search if false
@@ -215,8 +198,6 @@ function createGraph(args) {
                 'class': mainDomain,
                 source: mainDomain,
                 target: key,
-                'color': '#ccc',
-                'lineStyle': 'solid',
                 'weight': '2'
             },
             'selectable': 'false'
@@ -374,8 +355,7 @@ function createGraph(args) {
                         'class': key,
                         source: key,
                         target: dom,
-                        'color': '#000000',
-                        'lineStyle': 'dashed',
+                        'type': 'thirdParty',
                         'weight': '1'
                     },
                     'selectable': 'false'
