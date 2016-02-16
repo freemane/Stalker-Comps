@@ -431,9 +431,6 @@ function initializeTabs() {
         if (id == selectedId) {
             tabLinks[id].className = 'selected';
         } else {
-            if (id == 'graph'){
-                contentDivs[id].className = 'tabContent hideGraph';
-            }
             contentDivs[id].className = 'tabContent hide';
         }
         i++;
