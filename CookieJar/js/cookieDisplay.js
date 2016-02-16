@@ -423,21 +423,22 @@ function initializeTabs() {
     // Assign onclick events to the tab links, and
     // highlight the first tab
     var i = 0;
-
+    var selectedId = getHash(window.location.href);
+    console.log(selectedId);
+    if (selectedId==='undefined' || selectedId.length<1) {
+        //default opens graph
+        selectedId= 'graph';
+    }
     for (var id in tabLinks) {
         tabLinks[id].onclick = showTab;
         tabLinks[id].onfocus = function () {
             this.blur()
         };
-        if (i == 0) tabLinks[id].className = 'selected';
-        i++;
-    }
-
-    // Hide all content divs except the first
-    var i = 0;
-
-    for (var id in contentDivs) {
-        if (i != 0) contentDivs[id].className = 'tabContent hide';
+        if (id == selectedId) {
+            tabLinks[id].className = 'selected';
+        } else {
+            contentDivs[id].className = 'tabContent hide';
+        }
         i++;
     }
 }
@@ -447,6 +448,7 @@ Shows the tab most recently clicked on
 */
 function showTab() {
     var selectedId = getHash(this.getAttribute('href'));
+    console.log(selectedId);
 
     // Highlight the selected tab, and dim all others.
     // Also show the selected content div, and hide all others.
@@ -472,6 +474,9 @@ function getFirstChildWithTagName(element, tagName) {
 
 function getHash(url) {
     var hashPos = url.lastIndexOf('#');
+    if (hashPos<0) {
+        return "";
+    }
     return url.substring(hashPos + 1);
 }
 
