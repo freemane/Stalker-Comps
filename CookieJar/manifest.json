@@ -3,7 +3,7 @@
 
     "name": "Cookie Comps Extension",
     "description": "This extension is what we're using to learn about chrome extensions and interacting with cookies",
-    "version": "1.0",
+    "version": "1.1",
 
     "browser_action": {
         "default_icon": "icon.png",
