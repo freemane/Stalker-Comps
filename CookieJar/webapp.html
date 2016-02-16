@@ -29,8 +29,6 @@
 <script type="text/javascript" src="./js/graph.js"></script>
 <script type="text/javascript" src="./js/cookieDisplay.js"></script>
 
-<!-- For popovers -->
-<!-- <script type="text/javascript" src="./js/googleapi-ajax-jquery.js"></script> -->
 
 </head>
 
@@ -70,22 +68,23 @@
             <p><button class="btn btn-default" id="mostThirdParty">Most Third Party Connections</button>
             <button class="btn btn-default" id="mostConnections">Most Connections</button></p>
         </div>
+        
         <div class="col-sm-3">
+            <!--  TODO:  make a visual key  -->
+            <a href="#" title="Key" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.">  What does this graph show?</a> <br> <br>
+            <p>Apply Filters:</p>
+            <div id="filters">
+                <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label>
+                <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label>
+            </div>
+        </div>
+        <div class="col-sm-3">
+        <div class="container">
         <div id="search-wrapper">
             <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
             <span class="glyphicon glyphicon-remove-circle" id="clearSearch"></span>
         </div>
         </div>
-        <div class="col-sm-3">
-            <!--  TODO:  make a visual key  -->
-            <a href="#" title="Dismissible popover" data-toggle="popover" data-trigger="focus" data-content="Click anywhere in the document to close this popover">Click me</a>
-
-            <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
-            <p>Show only:</p>
-            <div id="filters">
-                <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br />
-                <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br />
-            </div>
         </div>
     </div>
 	<div id="cy" z-index=2></div>
@@ -96,9 +95,6 @@
 <div class="tabContent" id="faq">
 <div class="jumbotron">
       <div class="container">
-        <!-- <div class="page-header "> -->
-            <!-- <h1 class="text-center">FAQ </h1> -->
-        <!-- </div> -->
 <br>
 
   </div> 
