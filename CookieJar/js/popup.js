@@ -23,7 +23,9 @@ function getAllCookies() {
 	    chrome.cookies.getAll({'domain':tab}, function (cookies) {
 	        var outputCookies = [];
 	        var newCookies = [];
-	        outputCookies.push(['Name','Domain']);
+	        var cookieData = [];
+	        
+	        outputCookies.push(['','Name','Domain']);
 	        // outputCookies.push(['Name','Domain','Select']);
 
 	        //put cookies into table format
@@ -32,10 +34,19 @@ function getAllCookies() {
 	        for (var i = 0; i < cookies.length; i++) {
 	            var cook = cookies[i];
 	            var key = cook.domain.concat(cook.name); 
+	            cookieData.push({
+	                "name":cook.name,
+	                "value":cook.value,
+	                "domain":cook.domain,
+	                "expirationDate":cook.expirationDate,
+	                "hostOnly":cook.hostOnly,
+	                "path":cook.path,
+	                "secure":cook.secure
+            	});
 	            // var showMoreButton = $("button").on('click',function() {
 	            //     exp
 	            // });
-	            outputCookies.push([cook.name, cook.domain]);
+	            outputCookies.push(['',cook.name, cook.domain]);
 	        }
 
 	        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
@@ -43,7 +54,7 @@ function getAllCookies() {
 	        createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
 	            [10, 20, 50, -1],
 	            [10, 20, 50, 'All']
-	        ]])
+	        ]],cookieData)
 	    });
 	});
 }
