@@ -16,6 +16,7 @@ $(function () {
     $('#WebApp').click(openWebapp);
     $('#SelectAll').click(selectAll);
     $('#UnselectAll').click(unselectAll);
+    $('[data-toggle="popover"]').popover();
 });
 
 /*

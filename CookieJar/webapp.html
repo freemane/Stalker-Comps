@@ -29,6 +29,9 @@
 <script type="text/javascript" src="./js/graph.js"></script>
 <script type="text/javascript" src="./js/cookieDisplay.js"></script>
 
+<!-- For popovers -->
+<!-- <script type="text/javascript" src="./js/googleapi-ajax-jquery.js"></script> -->
+
 </head>
 
 <body>
@@ -75,6 +78,8 @@
         </div>
         <div class="col-sm-3">
             <!--  TODO:  make a visual key  -->
+            <a href="#" title="Dismissible popover" data-toggle="popover" data-trigger="focus" data-content="Click anywhere in the document to close this popover">Click me</a>
+
             <p>Key:  grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.</p>
             <p>Show only:</p>
             <div id="filters">
@@ -95,6 +100,9 @@
             <!-- <h1 class="text-center">FAQ </h1> -->
         <!-- </div> -->
 <br>
+
+  </div> 
+
     <br>      
       <div class="panel-group" id="accordion">
         <div class="panel panel-default">
@@ -168,6 +176,5 @@
         </div>
   </div>     
 </div>      
-
 </body>
 </html>
