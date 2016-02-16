@@ -21,9 +21,6 @@ function getAllCookies() {
         for (var i = 0; i < cookies.length; i++) {
             var cook = cookies[i];
             var key = cook.domain.concat(cook.name); 
-            // var showMoreButton = $("button").on('click',function() {
-            //     exp
-            // });
             var name = cook.name;
             var domain = cook.domain;
 
@@ -38,22 +35,6 @@ function getAllCookies() {
                 "path":cook.path,
                 "secure":cook.secure
             });
-
-            // $('button').on('click', 'td.details-control', function () {
-            //     var tr = $(this).closest('tr');
-            //     var row = table.row( tr );
-         
-            //     if ( row.child.isShown() ) {
-            //         // This row is already open - close it
-            //         row.child.hide();
-            //         tr.removeClass('shown');
-            //     }
-            //     else {
-            //         // Open this row
-            //         row.child( format(row.data()) ).show();
-            //         tr.addClass('shown');
-            //     }
-            // } );
             outputCookies.push(['',name, domain]);
         }
         Promise.all([cookies, styleP]).then(createGraph);
