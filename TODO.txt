@@ -22,6 +22,8 @@ loading quickly
 display more info about cookies in table
 	on click! - sort of done! (Works, but needs a little work)
 
+Show information about 3rd party edge when selected
+
 delete all button only deletes visible cookies
 	when searching -done
 restructuring

@@ -16,7 +16,6 @@
 function handleFirstRun() {
     var firstRunURL = '/webapp.html#faq';
     var currentVersion = chrome.app.getDetails().version;
-    console.log(currentVersion);
     var oldVersion = chrome.storage.local.get('lastVersionRun', function(item) {
         var oldVersion = item.lastVersionRun;
         if (oldVersion != currentVersion) {
