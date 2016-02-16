@@ -5,6 +5,8 @@ node {
     background-image: data(image);
     width: data(nodeWidth);
     height: data(nodeHeight);
+    shape: data(shape);
+    shape-polygon-points: data(polygonPoints);
 }
 
 
@@ -37,6 +39,7 @@ edge.faded {
 }
  
 node.faded {
-	opacity: 0.5;
+	opacity: 0.25;
 	text-opacity: 0;
+    background-image: 'https://';
 }
