@@ -25,7 +25,7 @@ $(function () {
     $('#WebApp').click(openWebapp);
     $('#SelectAll').click(selectAll);
     $('#UnselectAll').click(unselectAll);
-    // $('[data-toggle="popover"]').popover();
+    $('[data-toggle="popover"]').popover();
 });
 
 /*
@@ -156,7 +156,6 @@ function createRowElements(cellType, rowData, cookieData, tableName,cookieTable,
 
             $(button).addClass('expandButtonOpen');
             $(button).on('click',function() {
-                console.log("clicked");
                 if($(button).hasClass('expandButtonOpen')) {
                     $(button).removeClass('expandButtonOpen');
                     $(button).addClass('expandButtonClose');
