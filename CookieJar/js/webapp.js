@@ -31,6 +31,7 @@ function getAllCookies() {
             [15, 25, 100, -1],
             [15, 25, 100, 'All']
         ]]);
+        initializeTabs();
         
     });
 }

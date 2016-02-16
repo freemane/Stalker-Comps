@@ -94,12 +94,6 @@ function createTable(data, cookieDiv, options) {
     tableName = options[0];
     tableWidth = options[1];
     lengthOption = options[2];
-
-    // we only want the init function to happen once
-    if (tableName == 'cookieTableWebapp') {
-        initializeTabs();
-    }
-
     var table = document.createElement('table'),
         tableBody = document.createElement('tbody'),
         tableHeader = document.createElement('thead');
