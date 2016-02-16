@@ -337,11 +337,16 @@ function createGraph(args) {
             if (typeof obj ==='undefined') {
                 return;
             }
-            for (var key in obj){
+            for (var i = 0;i<amountToDisplay;++i){
+                var cook = data[i];
+                var key = shortDomain(cook.domain).concat(cook.name);
+                if (typeof obj[key] === 'undefined') {
+                    continue;
+                }
                 if (typeof obj[key]['domains'] === 'undefined') {
                     continue;
                 }
-//                createThirdPartyEdges(key, obj[key]['domains']);
+                createThirdPartyEdges(key, obj[key]['domains']);
             }
         });
     };
