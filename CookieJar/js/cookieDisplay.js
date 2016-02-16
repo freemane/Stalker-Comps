@@ -6,6 +6,15 @@ GLOBAL VARIABLES
 // variables for displaying tabs
 var tabLinks = new Array();
 var contentDivs = new Array();
+var myCookies = [];
+chrome.cookies.getAll({}, function(cookies) {
+    for(var i = 0;i<cookies.length;i++) {
+        myCookies.push(cookies[i]);
+    }
+});
+var cookieTable;
+// var cookies = chrome.cookies.getAll(function(cookies) {});
+
 
 // Starts the extension
 //TODO Create globalish variable for allCookies (do this once) and pass when needed
@@ -90,7 +99,7 @@ into an HTML table.
 options is an array that can be expanded to include additional table/style choices
 code adapted from http://stackoverflow.com/a/15164958
 */
-function createTable(data, cookieDiv, options) {
+function createTable(data, cookieDiv, options, cookieData) {
     tableName = options[0];
     tableWidth = options[1];
     lengthOption = options[2];
@@ -112,27 +121,62 @@ function createTable(data, cookieDiv, options) {
     
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
-    tableHeader.appendChild(createRowElements('th', headerData));
+    tableHeader.appendChild(createRowElements('th', headerData,cookieData));
     table.appendChild(tableHeader);
 
     // convert the rest of the array into the HTML data
     var tableData = data.slice(1, data.length);
+
+    var index = 0;
     tableData.forEach(function (rowData) {
-        tableBody.appendChild(createRowElements('td', rowData));
+        tableBody.appendChild(createRowElements('td', rowData,cookieData,tableName,cookieTable, index));
+        index = index + 1;
     });
     table.appendChild(tableBody);
 
     $(cookieDiv).append(table);
-    initializeDataTable(tableName, lengthOption);
+    var cookieTable = initializeDataTable(tableName, lengthOption);
+
 };
 
-// Function to add cells to row
-function createRowElements(cellType, rowData) {
+// Function to add cells to row. Need to change this to add buttons to the row
+function createRowElements(cellType, rowData, cookieData, tableName,cookieTable,index) {
     var row = document.createElement('tr');
+    var count = 0;
     rowData.forEach(function (cellData) {
-        var cell = document.createElement(cellType);
-        cell.appendChild(document.createTextNode(cellData));
-        row.appendChild(cell);
+        var curCookieData = {
+            "name":cookieData[index]
+        };
+        if(count == 0) {
+            // Do stuff
+            var cell = document.createElement(cellType);
+            var button = document.createElement('div');
+            var innerTable = document.createElement('div');
+            innerTable = format(innerTable,cookieData);
+
+            $(button).addClass('expandButtonOpen');
+            $(button).on('click',function() {
+                if($(button).hasClass('expandButtonOpen')) {
+                    $(button).removeClass('expandButtonOpen');
+                    $(button).addClass('expandButtonClose');
+                    expand(tableName,$(row),cookieData[index],cookieTable,false);
+                }
+                else if($(button).hasClass('expandButtonClose')) {
+                    $(button).removeClass('expandButtonClose');
+                    $(button).addClass('expandButtonOpen');
+                    expand(tableName,$(row),cookieData[index],cookieTable,true);
+                }
+            });
+
+            cell.appendChild(button);
+            row.appendChild(cell);
+        }
+        else {
+            var cell = document.createElement(cellType);
+            cell.appendChild(document.createTextNode(cellData));
+            row.appendChild(cell);
+        }
+        count = count + 1;
     });
     return row;    
 }
@@ -157,8 +201,11 @@ function selectAll() {
 Given cookie data, return a string with the HTML for a small table that includes the cookie information
 Formatted the date from milliseconds since UNIX epoch to an actual time
 */
+/*
+Given cookie data, return a string with the HTML for a small table that includes the cookie information
+Formatted the date from milliseconds since UNIX epoch to an actual time
+*/
 function format(cook) {
-    //console.log("Formatted");
     var date = new Date(cook.expirationDate * 1000);
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
         '<tr>'+
@@ -195,39 +242,23 @@ function format(cook) {
 /*
 
 */
-function expand(tableName,row,data,table) {
+function expand(tableName,row,data,table,expanded) {
     var rows = $('#'+tableName+' > tbody > tr');
+    var tr = row.closest('tr');
+    var row = cookieTable.row(tr);
     for(var i = 0;i<rows.length;i++) {
-        if($(rows[i]).hasClass('selected')) {
-            chrome.cookies.getAll({},function(cookies) {
-                for(var j = 0;j<cookies.length;j++) {
-                    var cook = cookies[j];
-                    if((data[0] == cook.name)&&(data[1] == cook.domain)) {
-                        // Found the cookie
-                        row.child(format(cook)).show();
-                        break;
-                    }
+        for(var j = 0;j<myCookies.length;j++) {
+            var cook = myCookies[j];
+            if((data["name"] == cook.name)&&(data["domain"] == cook.domain) && (data["value"] == cook.value)) {
+                if(expanded) {
+                    row.child.hide();
                 }
-            });
+                else {
+                    row.child(format(cook)).show();
+                }
+            }
         }
     }
-}
-
-// TODO Double click
-
-function doubleClickExpand(tableName,curRow,data,table) {
-    var tr = curRow.closest('tr');
-    var row = cookieTable.row( tr );
-
-    if($(curRow).hasClass('shown')){
-        row.child.hide();
-        tr.removeClass('shown');
-    }
-    else {
-        var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-        expand(tableName,curRow,data,cookieTable);
-        tr.addClass('shown');
-    } 
 }
 
 /*
@@ -236,23 +267,16 @@ Unselect all previously selected cells in the table
 function unselectAll() {
     var tableName = "cookieTableWebapp";
     if(!$("#"+tableName).length) { // The webapp is open
-        tableName = "cookieTablePopup"
+        tableName = "cookieTableWebapp";
     }
     var cookieTable = $("#"+tableName);
-    console.log(cookieTable);
     var rows = $('#'+tableName+' > tbody > tr');
     for(var i = 0;i<rows.length;i++) {
-        var tr = $(rows[i]).closest('tr');
-        var row = cookieTable.row( tr );
         if($(rows[i]).hasClass('selected')) {
             $(rows[i]).removeClass('selected');
         }
         if($(rows[i]).hasClass('shift')) {
             $(rows[i]).removeClass('shift');
-        }
-        if(row.child.isShown()) {
-            row.child.hide();
-            $(rows[i]).removeClass('shown');
         }
     }
 }
@@ -312,34 +336,13 @@ function regularSelect(curRow,rows,cookieTable,tableName){
     }
     var tr = curRow.closest('tr');
     var row = cookieTable.row( tr );
+    // If the button was clicked, don't do this
     if (curRow.hasClass('selected')) {
         curRow.removeClass('selected');
-        if ( row.child.isShown() ) {
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            /* 
-            tr is the table row object, children is an array with the name and domain of the cookie in the 
-            selected cell, and innerText refers to the text within the HTML element 
-            */
-            var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-            expand(tableName,row,data,cookieTable);
-            tr.addClass('shown');
-        }
-        
+    
     } else {
         cookieTable.$('tr.selected'); //.removeClass('selected');
         curRow.addClass('selected');
-        if ( tr.hasClass('shown') ) {
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            var data = [ tr[0].children[0].innerText, tr[0].children[1].innerText ];
-            expand(tableName,row,data,cookieTable);
-            tr.addClass('shown');
-        }
     }
 }
 
@@ -352,25 +355,25 @@ Allows for shift clicking to select multiple rows at once
 
 //TODO - Modularize the shiftClick and show functionality into different functions
 function initializeDataTable(tableName, lengthOption) {
-    var cookieTable = $('#' + tableName).DataTable({
-        'lengthMenu': lengthOption
+    cookieTable = $('#' + tableName).DataTable({
+        // 'lengthMenu': lengthOption
     });
 
     // allows a single row to be selected
     $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
-        var rows = $('#'+tableName+' > tbody > tr');
-        // If the shift key is down on the click event...
-        if(e.shiftKey) {
-            shiftClickSelect($(this),rows);
+        if(e.target.childNodes.length > 0) {
+            if(e.target.firstChild.nodeType == 3) {
+                var rows = $('#'+tableName+' > tbody > tr');
+                // If the shift key is down on the click event...
+                if(e.shiftKey) {
+                    shiftClickSelect($(this),rows);
+                }
+                // Otherwise...
+                else {
+                    regularSelect($(this),rows,cookieTable,tableName);
+                }
+            }
         }
-        // Otherwise...
-        else {
-            regularSelect($(this),rows,cookieTable,tableName);
-        }
-    });
-
-    $('#' + tableName + ' tbody').on('dbclick','tr',function() {
-        doubleClickExpand(tableName,row,cookieTable);
     });
 
     // button removes selected rows
@@ -395,6 +398,8 @@ function initializeDataTable(tableName, lengthOption) {
         removeSelectedCookies(selectedCookies);
     });
     $('#' + tableName).dataTable();
+
+    return cookieTable;
 }
 
 function openWebapp() {
