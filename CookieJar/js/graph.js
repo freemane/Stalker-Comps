@@ -21,7 +21,6 @@ function createGraph(args) {
         // prevents animation from happening for cookies
         if (node.data('type') == 'domain') {
             // TODO - figure out clear/highlight/select so same neighborhood nodes don't have to be re-animated
-//            clear();
             $('#search').val(''); // clears anything in the search box
             highlight(node);
         };
@@ -266,6 +265,7 @@ function createGraph(args) {
 
     // zooms in on the domain with the most connections (edges)
     $('#mostConnections').on('click', function () {
+        clear();
         cy.nodes().unselect();
         cy.layout(layout);
         var maxNeighbors = 0;
