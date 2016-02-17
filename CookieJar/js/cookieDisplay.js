@@ -6,7 +6,7 @@ GLOBAL VARIABLES
 // variables for displaying tabs
 var tabLinks = new Array();
 var contentDivs = new Array();
-var myCookies = [];
+var myCookies = [];                     // THIS SHOULD REPLACE ALL THE CALLS TO chrome.cookies.getAll
 chrome.cookies.getAll({}, function(cookies) {
     for(var i = 0;i<cookies.length;i++) {
         myCookies.push(cookies[i]);
@@ -20,8 +20,8 @@ var cookieTable;
 //TODO Create globalish variable for allCookies (do this once) and pass when needed
 //TODO Consolidate selectAll function
 $(function () {
-    $('#DeleteAll').click(removeAllCookies);
     getAllCookies();
+    $('#DeleteAll').click(removeAllCookies);
     $('#WebApp').click(openWebapp);
     $('#SelectAll').click(selectAll);
     $('#UnselectAll').click(unselectAll);
@@ -38,16 +38,23 @@ function removeAllCookies() {
         function (cookies) {
             for (var j = 0; j < cookies.length; j++) {
                 var cookie = cookies[j];
-                if (cookie.domain.charAt(0) != '.') {
-                      deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
-                } else {
-                    cookie.domain = cookie.domain.substring(1, cookie.domain.length)
-                    deleteCookie(cookie.domain,cookie.name,cookie.storeId,cookie.value);
-                }
+                var domain = extrapolateUrlFromCookie(cookie);//cookie.domain.substring(1, cookie.domain.length)
+                deleteCookie(domain,cookie.name,cookie.storeId,cookie.value,cookie.secure);
             }
         });
     location.reload();
 };
+
+/*
+Taken from http://stackoverflow.com/questions/5460698/removing-a-cookie-from-within-a-chrome-extension
+*/
+function extrapolateUrlFromCookie(cookie) {
+    var prefix = cookie.secure ? "https://" : "http://";
+    if (cookie.domain.charAt(0) == ".")
+        prefix += "www";
+
+    return prefix + cookie.domain + cookie.path;
+}
 
 //TODO Consolidate this function and removeAllCookis to one, pass different lists of cookies
 function removeSelectedCookies(selected) {
@@ -56,40 +63,33 @@ function removeSelectedCookies(selected) {
 
             //TODO Call deleteCookie on the selected list only, w/o the getAll call
             for (var i = 0; i < selected.length; i++) {
+                var curSelected = selected[i];
                 for (var j = 0; j < cookies.length; j++) {
                     var cookie = cookies[j];
-
-                    curSelected = selected[i];
-                    if (cookie.name == curSelected[0] && cookie.domain == curSelected[1]) {
-                      var url = "http" + ((cookie.secure == true) ? "s" : "")+"://"+cookie.domain;
-                        deleteCookie(url,cookie.name,cookie.storeId,cookie.value,cookie.secure);
+                    console.log(cookie.storeId);
+                    if (cookie.name == curSelected[1] && cookie.domain == curSelected[2]) {
+                        var domain = extrapolateUrlFromCookie(cookie)
+                        deleteCookie(domain,cookie.name,cookie.storeId,cookie.value,cookie.secure);
                     }
                 }
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-        //location.reload();
+        location.reload();
 };
 
 /*
 Removes cookie, given it's url, name, storeId, value, and secure boolean
 */
-function deleteCookie(url,name,store,value,secure,callback){
-    url = "http" + ((secure == true) ? "s" : "")+"://"+url;
+function deleteCookie(url,name,store,value,secure){
 	chrome.cookies.remove({
 		'url':url,
-		'name':name,
-		'storeId':store
-	}, function(details) {
-		if(typeof callback === "undefined")
-			return;
-		if(details=="null" || details===undefined || details==="undefined") {
-			callback(false);
-		} else {
-			callback(true);
-		}
-	});
-}
+		'name':name
+		// 'storeId':store
+    },function(deletedCookie) {
+        //console.log('COOKIE DELETED '+deletedCookie);
+    });
+}   
 
 
 /*
