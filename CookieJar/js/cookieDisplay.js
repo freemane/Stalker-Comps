@@ -75,7 +75,7 @@ function removeSelectedCookies(selected) {
             }
         });
     //    DataTables dynammically updates the table so we don't have to reload the page
-        location.reload();
+    //        location.reload();
 };
 
 /*
