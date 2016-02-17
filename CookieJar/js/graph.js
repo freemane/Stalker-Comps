@@ -446,4 +446,5 @@ function createGraph(args) {
             });
         });
     });
+    cy.ready(initializeTabs);
 }
