@@ -85,7 +85,6 @@ function deleteCookie(url,name,store,value,secure){
 	chrome.cookies.remove({
 		'url':url,
 		'name':name
-		// 'storeId':store
     },function(deletedCookie) {
         //console.log('COOKIE DELETED '+deletedCookie);
     });
@@ -138,9 +137,6 @@ function createRowElements(cellType, rowData, cookieData, tableName,cookieTable,
     var row = document.createElement('tr');
     var count = 0;
     rowData.forEach(function (cellData) {
-        // var curCookieData = {
-        //     "name":cookieData[index]
-        // };
         if(count == 0) {
             // Do stuff
             var cell = document.createElement(cellType);
@@ -261,7 +257,7 @@ Unselect all previously selected cells in the table
 function unselectAll() {
     var tableName = "cookieTableWebapp";
     if(!$("#"+tableName).length) { // The webapp is open
-        tableName = "cookieTableWebapp";
+        tableName = "cookieTablePopup";
     }
     var cookieTable = $("#"+tableName);
     var rows = $('#'+tableName+' > tbody > tr');
