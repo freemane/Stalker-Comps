@@ -11,8 +11,11 @@ function extractDomain(url) {
     }
     //find & remove port number
     domain = domain.split(':')[0];
+    $(currentURL).empty();
+	$(currentURL).append("Here are your cookies relating to "+ domain);
     return domain;
 }
+
 /*
 In addition to getting all cookies, also creates an array (outputCookies) with data
 for the HTML table.

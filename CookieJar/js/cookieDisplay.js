@@ -56,6 +56,7 @@ function extrapolateUrlFromCookie(cookie) {
     return prefix + cookie.domain + cookie.path;
 }
 
+
 //TODO Consolidate this function and removeAllCookis to one, pass different lists of cookies
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
@@ -419,7 +420,6 @@ function initializeTabs() {
     // highlight the first tab
     var i = 0;
     var selectedId = getHash(window.location.href);
-    console.log(selectedId);
     if (selectedId==='undefined' || selectedId.length<1) {
         //default opens graph
         selectedId= 'graph';
@@ -444,7 +444,6 @@ Shows the tab most recently clicked on
 */
 function showTab() {
     var selectedId = getHash(this.getAttribute('href'));
-    console.log(selectedId);
 
     // Highlight the selected tab, and dim all others.
     // Also show the selected content div, and hide all others.
@@ -452,7 +451,6 @@ function showTab() {
         if (id == selectedId) {
             tabLinks[id].className = 'selected';
             contentDivs[id].className = 'tabContent';
-            console.log(window.firstRun);
             if (window.firstRun && id == 'graph') {
                 document.getElementById("reset").click();
                 window.firstRun = false;
