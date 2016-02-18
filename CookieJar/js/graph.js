@@ -1,7 +1,6 @@
 /*
 Creates the Cytoscape graph.
 */
-//TODO Continue code review (reorganize stuff?)
 function createGraph(args) {
     // points array represents all of the objects (nodes and edges) displayed
     var points = [];
@@ -15,30 +14,53 @@ function createGraph(args) {
         style: styleJson
     });
     
-    cy.on('select', 'node', function (e) { // On click (select)
+    cy.on('click', 'node', function (e) { // On click
         var node = this;
-        createTooltip(node);
-        // prevents animation from happening for cookies
-        if (node.data('type') == 'domain') {
-            // TODO - figure out clear/highlight/select so same neighborhood nodes don't have to be re-animated
-            $('#search').val(''); // clears anything in the search box
-            highlight(node);
-        };
-        // TODO/QUESTION - show neighborhood instead of cookie -- do we want this?
-        // I think we do -Robert
-        if (node.data('type') == 'cookie') {
-            selectDomainOfCookie(node);
-        };
         
+        // if the neighborhood is already selected, create the tooltip
+        // uses custom class because 'select' and 'click' are too similar
+        if (node.hasClass('nhoodSelected')) {
+            createTooltip(node); 
+            return;
+        }
+        
+        // if the neighborhood hasn't been selected, select and zoom in on domain
+        selectNeighborhood(node);
     });
     
     cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
         var node = this;
         $('#search').val('');
+        cy.nodes().unselect();
     });
     
-    // TODO - show qip after node is highlights. For some reason, having a lot of trouble...
+    /* 
+    Selects all elements (includes edges) of the neighboorhood of the given node.
+    Highlights (zooms in on) the domain.
+    */
+    function selectNeighborhood(node) {
+        var nhood = node.closedNeighborhood();
+        cy.elements().not(nhood).removeClass('nhoodSelected');
+        var nodeDomain;
+        nhood.forEach(function (n) {
+            if (n.data('type') == 'domain') {
+                nodeDomain = n;
+            };
+            n.addClass('nhoodSelected');
+        });
+        highlight(nodeDomain);
+    };    
+    
+    /*
+    Creates tooltip for selected node. Class 'tooltip' prevents a new tooltip from being 
+    created every time a given node is clicked.
+    */
     function createTooltip(node) {
+        if (node.hasClass('tooltip')) {
+            return;
+        }
+        node.addClass('tooltip');
+        
         // domain (parent) nodes do not have the same amount of info as cookie nodes
         if (node.data('type') == 'domain') {
             var qtipContent = '<b>'+node.data('type')+':  '+node.data('searchData')+
@@ -90,7 +112,7 @@ function createGraph(args) {
     function highlight(node) {
         var nhood = node.closedNeighborhood();
         if (node.hasClass("highlighted")){
-            createTooltip(node);
+//            createTooltip(node);
             return;
         }
         cy.batch(function () {
@@ -151,7 +173,7 @@ function createGraph(args) {
                     'type': 'domain',
                     'name': mainDomain,
                     'fullDomain': cook.domain,
-                    'path': cook.path, // should this be included in parent data?
+                    'path': cook.path,
                     'searchData': mainDomain,
                     'weight': 2,
                 },
@@ -186,7 +208,7 @@ function createGraph(args) {
             },
             'removed': false,
             'selected': false,
-            'selectable': true, // less undesirable zoom animation if false, can't search if false
+            'selectable': true,
             'locked': false,
             'grabbable': false,
         };
@@ -230,37 +252,25 @@ function createGraph(args) {
         cy.nodes().unselect(); // by having unselect in here, tooltips work better
         cy.layout(layout);
         var node = cy.nodes()[cy.nodes().length - 1];
-        selectDomainOfCookie(node);
+        selectNeighborhood(node);
     });
     
-    function selectDomainOfCookie(node) {
-        var nodeDomain;
-        node.closedNeighborhood().forEach(function (n) {
-            if (n.data('type') == 'domain') {
-                nodeDomain = n;
-            };
-        });
-        nodeDomain.select();
-    }
-
     // zooms in on the domain with the most cookies
     $('#mostCookies').on('click', function () {
         clear();
         cy.nodes().unselect();
         cy.layout(layout);
         var node = getNodeWithMostEdges(2);
-        node.select();
+        selectNeighborhood(node);
     });
 
-    // fixed - TODO/BUG - 3rd party and most connections buttons don't work one after the other
-    // TODO/BUG - uncaught error when no 3rd party connections
     // zooms in on the domain with the most third party connections
     $('#mostThirdParty').on('click', function () {
         clear();
         cy.nodes().unselect();
         cy.layout(layout);
         var node = getNodeWithMostEdges(1);
-        node.select();
+        selectNeighborhood(node);
     });
 
     // zooms in on the domain with the most connections (edges)
@@ -279,7 +289,7 @@ function createGraph(args) {
             });
 
         });
-        biggestNode.select();
+        selectNeighborhood(biggestNode);
     });
 
     /*
@@ -423,7 +433,8 @@ function createGraph(args) {
         }
     }).on('typeahead:selected', function (e, entry, dataset) {
         var n = cy.getElementById(entry.id);
-        n.select();
+        // TODO:  since we select entire neighborhood, it'd be cool to highlight the search result
+        selectNeighborhood(n);
     });
 
     $('#filters').on('click', function () {
