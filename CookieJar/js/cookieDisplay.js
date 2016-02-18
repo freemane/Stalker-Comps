@@ -399,12 +399,12 @@ function openWebapp() {
     });
 };
 
-//TODO (Emma) - Explain what is going on here in code review
 /*
 Matches LI items in the list to the corresponding div with the same ID
 */
 function initializeTabs() {
     // Grab the tab links and content divs from the page
+    window.firstRun = true;
     var tabListItems = document.getElementById('tabs').childNodes;
     for (var i = 0; i < tabListItems.length; i++) {
         if (tabListItems[i].nodeName == 'LI') {
@@ -438,6 +438,7 @@ function initializeTabs() {
     }
 }
 
+
 /*
 Shows the tab most recently clicked on
 */
@@ -451,6 +452,11 @@ function showTab() {
         if (id == selectedId) {
             tabLinks[id].className = 'selected';
             contentDivs[id].className = 'tabContent';
+            console.log(window.firstRun);
+            if (window.firstRun && id == 'graph') {
+                document.getElementById("reset").click();
+                window.firstRun = false;
+            }
         } else {
             tabLinks[id].className = '';
             contentDivs[id].className = 'tabContent hide';
@@ -460,6 +466,7 @@ function showTab() {
     // Stop the browser following the link
     return false;
 }
+
 
 function getFirstChildWithTagName(element, tagName) {
     for (var i = 0; i < element.childNodes.length; i++) {
