@@ -39,6 +39,11 @@ node.highlighted {
     	font-size: 10;
     	z-index: 9999;
 }
+
+node.selected {
+    border-width: 4;
+    border-color: #333;
+}
  
 edge.highlighted {
 	opacity: 0.8;

@@ -39,6 +39,8 @@ function createGraph(args) {
     Highlights (zooms in on) the domain.
     */
     function selectNeighborhood(node) {
+        cy.elements().removeClass('selected');
+        node.addClass('selected');
         var nhood = node.closedNeighborhood();
         cy.elements().not(nhood).removeClass('nhoodSelected');
         var nodeDomain;
@@ -433,7 +435,6 @@ function createGraph(args) {
         }
     }).on('typeahead:selected', function (e, entry, dataset) {
         var n = cy.getElementById(entry.id);
-        // TODO:  since we select entire neighborhood, it'd be cool to highlight the search result
         selectNeighborhood(n);
     });
 
