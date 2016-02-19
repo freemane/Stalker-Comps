@@ -1,3 +1,13 @@
+* Table: green/ red expand row circle removed from first row?
+* Popup: when there are no cookies for current site, say so
+	Css changes
+* Tabs: put space back between table and FAQ tabs
+* Popover text thing: table goes to the top when clicked
+* FAQ: add any new information?
+* Graph: add buffer on left and right
+* Graph: layout changes
+* Table: make background of third party cookie rows light yellow
+
 On first load, show faq
 	Commented-out code on the background script
 
@@ -5,48 +15,15 @@ Fix min/max zoom
 
 Try to figure out where you are if you zoom out/in too much (maybe change the bg color of the actual graph?) - add a black outline around graph?
 
-Look into adding related domains to the expanded cookie cell in the webapp
+* Look into adding related domains to the expanded cookie cell in the webapp?
 
-PAPER - are we leaving this until after presentations?
-
-When you select multiple rows in table: can't happen unless first selection is expanded
-	Can we change this?
-
-loading quickly
-	either fewer cookies
-	asynchronous calls
-		maybe???
-	optimizing code??
-	multiple graphs ie most recent, third party connections only
-
-display more info about cookies in table
-	on click! - sort of done! (Works, but needs a little work)
+Edit Paper (after presentation)
 
 Show information about 3rd party edge when selected
 
-delete all button only deletes visible cookies
-	when searching -done
-restructuring
-parsing http headers?? -done
-zombie cookies?
-	can we even identify them
-    -- no
-
 Popover text for things that may not be intuitive. WTF - What's this feature?
 
-PRESENTATION
-Should we.... make a google presentation? Prezi? Thoughts?
-
-POPUP
-	* Do we want the table to only show related cookies to your current page?
-		or possibly most recent cookies/ something else
-	* css - change font color to match table in web app, fonts to dark grey
-	* what info do we want included?
-	filters
-		only relevant(how is that defined?) cookies
-
-FAQ
-Change on clicked color of titles
+PRESENTATION - ya know, do this and stuff.
 
 cutting domains down -done
 	fix-- Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
@@ -69,6 +46,3 @@ More usability testing!
 	* How did using the app feel? 
 	* Thoughts on navigability, aesthetic 
 
-
-PROBLEMS:
-If a cookie cannot be deleted, do we want a notification to alert the user?

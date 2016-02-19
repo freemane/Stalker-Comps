@@ -12,7 +12,7 @@ function extractDomain(url) {
     //find & remove port number
     domain = domain.split(':')[0];
     $(currentURL).empty();
-	$(currentURL).append("Here are your cookies relating to "+ domain+":");
+	$(currentURL).append("Here are your cookies for "+ domain+":");
     return domain;
 }
 
