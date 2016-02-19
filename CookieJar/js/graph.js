@@ -11,7 +11,9 @@ function createGraph(args) {
     var styleJson = args[1];
     var cy = cytoscape({
         container: document.getElementById('cy'), // container to render in
-        style: styleJson
+        style: styleJson,
+        maxZoom: 10,
+        minZoom: 1e-2,
     });
     
     cy.on('click', 'node', function (e) { // On click
@@ -35,21 +37,33 @@ function createGraph(args) {
     });
     
     /* 
-    Selects all elements (includes edges) of the neighboorhood of the given node.
-    Highlights (zooms in on) the domain.
+    Assigns a custom class to all elements (includes edges) of the neighboorhood of the given 
+    node. This emulates the selection of multiple elements at once. Selects the given node 
+    and zooms in on the domain.
     */
     function selectNeighborhood(node) {
-        cy.elements().removeClass('selected');
-        node.addClass('selected');
+        cy.batch(function () { // cy.batch prevents multiple style re-calculations or redraws
+            cy.elements().removeClass('selected');
+            cy.elements().removeClass('nhoodSelected');
+        });
+        
+        var nodeDomain = node; // if node isn't actually domain, set it right
         var nhood = node.closedNeighborhood();
-        cy.elements().not(nhood).removeClass('nhoodSelected');
-        var nodeDomain;
-        nhood.forEach(function (n) {
-            if (n.data('type') == 'domain') {
-                nodeDomain = n;
-            };
+        if (node.data('type') == 'cookie') {
+            nhood.forEach(function (n) {
+                if (n.data('type') == 'domain') {
+                    nodeDomain = n;
+                };
+            });
+        }
+        
+        // select all nodes in the neighboorhood of the domain
+        var domainHood = nodeDomain.closedNeighborhood();
+        domainHood.forEach(function (n) {
             n.addClass('nhoodSelected');
         });
+        
+        node.addClass('selected');
         highlight(nodeDomain);
     };    
     
@@ -88,12 +102,12 @@ function createGraph(args) {
     // Unselects selected/highlighed node, zooms out, and returns nodes to original positions
     function clear() {
         cy.batch(function () {
-            cy.$('.highlighted').forEach(function (n) {
-                n.animate({
-                    position: n.data('orgPos')
-                });
-            });
+            // returns nodes to full opacity
             cy.elements().removeClass('highlighted').removeClass('faded');
+            
+            // removes highlight/select circle for selected node
+            cy.elements().removeClass('selected');
+            cy.elements().removeClass('nhoodSelected');            
         });
         
         // animation for zooming back to standard view

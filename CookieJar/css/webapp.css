@@ -1,7 +1,9 @@
 #cy {
-  width: 100%;
-  height: 750px;
-  display: block;
+    width: 90%;
+    height: 750px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #search-wrapper .empty-message {
