@@ -59,7 +59,8 @@ function getAllCookies() {
 	        //changes text in popup if table is empty
 	        if (outputCookies.length == 1){
 	        	$(currentURL).empty();
-            document.getElementById("buttons").innerHTML = "<input type=\"button\" class=\"btn btn-default\" id=\"WebApp\" Value=\"Visualize my Cookies!\">";
+            document.getElementById("buttons").innerHTML = "<input type=\"button\" class=\"btn btn-default\" id=\"WebApp\"  Value=\"Visualize my Cookies!\">";
+            $("#WebApp").click(openWebapp);
 				    $(currentURL).append("<br>You don't have any cookies for this page.<br><br>");
 	        }
           else {
