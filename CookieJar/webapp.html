@@ -66,17 +66,37 @@
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
     <!--  Classes are used to apply Bootstrap style  -->
-    <div class="row">
-        <div class="col-sm-5">
-            <p><button class="btn btn-default" id="mostRecent">Newest Cookie</button>
-            <button class="btn btn-default" id="mostCookies">Most Cookies</button>
-            <button class="btn btn-default" id="reset">Reset View</button></p>
-            <p><button class="btn btn-default" id="mostThirdParty">Most Third Party Connections</button>
-            <button class="btn btn-default" id="mostConnections">Most Connections</button></p>
-        </div>
         
+    <div class="container ontop">
         <div class="col-sm-3">
-            <!--  TODO:  make a visual key  -->
+            <div class="row">
+            <div id="search-wrapper">
+            <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
+            <span class="glyphicon glyphicon-remove-circle" id="clearSearch">                   </span>
+            </div>
+        </div>
+
+            <div class="row">
+            <button class="btn btn-default btn-block" id="reset">Reset View</button>
+            </div>
+            
+            <div class="row">
+            <button class="btn btn-default btn-block" id="mostRecent">Newest Cookie</button>
+            </div>
+            <div class="row">
+            <button class="btn btn-default btn-block" id="mostCookies">Most Cookies</button>
+            </div>
+            <div class="row">
+            <button class="btn btn-default btn-block" id="mostThirdParty">Most Third Party Cookies</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="col-sm-9"></div>
+    
+        <div class="col-sm-3">
+    <div class="container ontop">
             <a href="#" title="Key" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.">  What does this graph show?</a> <br> <br>
             <p>Apply Filters:</p>
             <div id="filters">
@@ -84,16 +104,9 @@
                 <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label>
             </div>
         </div>
-        <div class="col-sm-3">
-        <div class="container">
-        <div id="search-wrapper">
-            <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
-            <span class="glyphicon glyphicon-remove-circle" id="clearSearch"></span>
-        </div>
-        </div>
-        </div>
     </div>
-	<div id="cy" z-index=2></div>
+    
+	<div id="cy"></div>
 </div>
 
 <!--  div of FAQ  -->

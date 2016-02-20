@@ -4,8 +4,13 @@
     display: block;
     margin-left: auto;
     margin-right: auto;
+    z-index: 2;
 }
 
+.ontop {
+    position: absolute;
+    z-index: 5;
+}
 
 #tooltip td {
     background-color: #fff;
@@ -23,10 +28,12 @@
     text-align: center;
 }
 
+/*
 #search-wrapper .description-message {
-    /*padding: 5px 10px;
-    text-align: center;*/
+    padding: 5px 10px;
+    text-align: center;
 }
+*/
 
 *.unselectable {
    -webkit-user-select: none;
@@ -34,7 +41,7 @@
 }
 
 #clearSearch {
-    position: absolute;
+    position: relative;
     z-index: 10;
     right: 20px;
     top: 0;
