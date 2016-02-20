@@ -29,7 +29,7 @@ $(function () {
 });
 
 /*
-Attempts to remove all cookies using the chrome.cookies API, refreshes page 
+Attempts to remove all cookies using the chrome.cookies API, refreshes page
 
 Check to see if we can simplify the process with '*'
 */
@@ -89,7 +89,7 @@ function deleteCookie(url,name,store,value,secure){
     },function(deletedCookie) {
         //console.log('COOKIE DELETED '+deletedCookie);
     });
-}   
+}
 
 
 /*
@@ -112,10 +112,10 @@ function createTable(data, cookieDiv, options, cookieData) {
     table.setAttribute('id', tableName);
     table.setAttribute('width', tableWidth);
     table.setAttribute('cellspacing', '0');
-    
+
     // convert first array in array to the HTML header row
     var headerData = data.slice(0, 1)[0];
-    tableHeader.appendChild(createRowElements('th', headerData,cookieData));
+    tableHeader.appendChild(createRowElements('th', headerData,cookieData,tableName,-1));
     table.appendChild(tableHeader);
 
     // convert the rest of the array into the HTML data
@@ -123,7 +123,7 @@ function createTable(data, cookieDiv, options, cookieData) {
 
     var index = 0;
     tableData.forEach(function (rowData) {
-        tableBody.appendChild(createRowElements('td', rowData,cookieData,tableName,cookieTable, index));
+        tableBody.appendChild(createRowElements('td', rowData,cookieData,tableName, index));
         index = index + 1;
     });
     table.appendChild(tableBody);
@@ -134,46 +134,47 @@ function createTable(data, cookieDiv, options, cookieData) {
 };
 
 // Function to add cells to row. Need to change this to add buttons to the row
-function createRowElements(cellType, rowData, cookieData, tableName,cookieTable,index) {
+function createRowElements(cellType, rowData, cookieData, tableName,index) {
     var row = document.createElement('tr');
     var count = 0;
     rowData.forEach(function (cellData) {
-        if(count == 0) {
-            // Do stuff
-            var cell = document.createElement(cellType);
-            var button = document.createElement('div');
-            var innerTable = document.createElement('div');
-            innerTable = format(innerTable,cookieData);
+      if(count == 0 && index != -1) {
+          // Do stuff
+          var cell = document.createElement(cellType);
+          var button = document.createElement('div');
+          var innerTable = document.createElement('div');
+          innerTable = format(innerTable,cookieData);
 
-            $(button).addClass('expandButtonOpen');
-            $(button).on('click',function() {
-                if($(button).hasClass('expandButtonOpen')) {
-                    $(button).removeClass('expandButtonOpen');
-                    $(button).addClass('expandButtonClose');
-                    expand(tableName,$(row),cookieData[index],cookieTable,false);
-                }
-                else if($(button).hasClass('expandButtonClose')) {
-                    $(button).removeClass('expandButtonClose');
-                    $(button).addClass('expandButtonOpen');
-                    expand(tableName,$(row),cookieData[index],cookieTable,true);
-                }
-            });
+          $(button).addClass('expandButtonOpen');
+          $(button).on('click',function() {
+              if($(button).hasClass('expandButtonOpen')) {
+                  $(button).removeClass('expandButtonOpen');
+                  $(button).addClass('expandButtonClose');
+                  expand(tableName,$(row),cookieData[index],false);
+              }
+              else if($(button).hasClass('expandButtonClose')) {
+                  $(button).removeClass('expandButtonClose');
+                  $(button).addClass('expandButtonOpen');
+                  expand(tableName,$(row),cookieData[index],true);
+              }
+          });
 
-            cell.appendChild(button);
-            row.appendChild(cell);
-        }
-        else {
-            var cell = document.createElement(cellType);
-            cell.appendChild(document.createTextNode(cellData));
-            row.appendChild(cell);
-        }
-        count = count + 1;
+          cell.appendChild(button);
+          row.appendChild(cell);
+      }
+      else {
+          var cell = document.createElement(cellType);
+          cell.appendChild(document.createTextNode(cellData));
+          row.appendChild(cell);
+      }
+      count = count + 1;
+
     });
-    return row;    
+    return row;
 }
 
 /*
-Function that allows for the user to select all cookies in the current table 
+Function that allows for the user to select all cookies in the current table
 */
 function selectAll() {
     var tableName = "cookieTablePopup";
@@ -233,7 +234,7 @@ function format(cook) {
 /*
 
 */
-function expand(tableName,row,data,table,expanded) {
+function expand(tableName,row,data,expanded) {
     var rows = $('#'+tableName+' > tbody > tr');
     var tr = row.closest('tr');
     var row = cookieTable.row(tr);
@@ -316,7 +317,7 @@ function shiftClickSelect(curRow,rows) {
 
 /*
 Defines functionality for when a user clicks on a row without holding shift,
-expanding the cell to show more info. 
+expanding the cell to show more info.
 */
 function regularSelect(curRow,rows,cookieTable,tableName){
     //TODO - Remove unnecessary classes (selected, shift, shown)
@@ -330,7 +331,7 @@ function regularSelect(curRow,rows,cookieTable,tableName){
     // If the button was clicked, don't do this
     if (curRow.hasClass('selected')) {
         curRow.removeClass('selected');
-    
+
     } else {
         cookieTable.$('tr.selected'); //.removeClass('selected');
         curRow.addClass('selected');
