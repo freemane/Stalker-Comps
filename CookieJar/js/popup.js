@@ -12,8 +12,8 @@ function extractDomain(url) {
     //find & remove port number
     domain = domain.split(':')[0];
     $(currentURL).empty();
-	$(currentURL).append("Here are your cookies for "+ domain+":"+
-		"<br>Click a cookie in the table to select it.");
+	$(currentURL).append("<h4>Here are your cookies for "+ domain+":</h4>"+
+		"Click a cookie in the table to select it.");
     return domain;
 }
 
@@ -62,7 +62,7 @@ function getAllCookies() {
 	        //changes text in popup if table is empty
 	        if (outputCookies.length == 1){
 	        	$(currentURL).empty();
-				$(currentURL).append("You don't have any cookies for this page.");
+				$(currentURL).append("<br>You don't have any cookies for this page.<br><br>");
 	        }
 	    });
 	});
