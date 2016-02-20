@@ -72,7 +72,7 @@ function getAllCookies() {
             createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
   	            [10, 20, 50, -1],
   	            [10, 20, 50, 'All']
-  	        ]],cookieData)
+  	        ]],cookieData);
           }
 	    });
 	});
