@@ -1,5 +1,5 @@
 body {
-  width: 700px; 
+  width: 650px; 
   min-height: 100%;
   position: relative;
   vertical-align:middle;
@@ -37,5 +37,9 @@ td.details-control {
 }
 tr.shown td.details-control {
     background: url('../resources/details_close.png') no-repeat center center;
+}
+
+h3 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 

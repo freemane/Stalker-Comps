@@ -62,10 +62,11 @@ function getAllCookies() {
 
             //Remove most buttons if no cookies are present
             $("buttons").empty();
-            document.getElementById("buttons").innerHTML = "<input type=\"button\" class=\"btn btn-default\" id=\"WebApp\"  Value=\"Visualize my Cookies!\">";
+            document.getElementById("buttons").innerHTML = "<center><input type=\"button\" class=\"btn btn-default\" id=\"WebApp\"  Value=\"Visualize my Cookies!\"></center><br>";
             $("#WebApp").click(openWebapp);
-            
-				    $(currentURL).append("<br>You don't have any cookies for this page.<br><br>");
+            $(currentURL).append("<style>body {width: 400px;}</style>");
+			$(currentURL).append("<br><center><h4>You don't have any cookies for this page.</h4></center>");
+			$(currentURL).append('<center><img src="sadcookie.png" style="width:50px;height:50px;border-radius:25px;"></center>');
 	        }
           else {
             createTable(outputCookies, '#listCookies', ['cookieTablePopup', '500px', [
