@@ -6,6 +6,18 @@
     margin-right: auto;
 }
 
+
+#tooltip td {
+    background-color: #fff;
+    max-width: 190px;
+    word-wrap: break-word;
+    border-left: none;         
+    border-top: none;              
+    border-bottom: none;    
+    border-right: none; 
+    border-spacing: 0;
+}
+
 #search-wrapper .empty-message {
     padding: 5px 10px;
     text-align: center;

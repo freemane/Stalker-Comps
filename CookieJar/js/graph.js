@@ -16,18 +16,21 @@ function createGraph(args) {
         minZoom: 1e-2,
     });
     
-    cy.on('click', 'node', function (e) { // On click
-        var node = this;
+    cy.on('click', 'node,edge', function (e) { // On click
+        var element = this;
+        if (element.data('type') == 'none') { // do nothing for normal edge
+            return;
+        }
         
         // if the neighborhood is already selected, create the tooltip
         // uses custom class because 'select' and 'click' are too similar
-        if (node.hasClass('nhoodSelected')) {
-            createTooltip(node); 
+        if (element.hasClass('nhoodSelected')) {
+            createTooltip(element); 
             return;
         }
         
         // if the neighborhood hasn't been selected, select and zoom in on domain
-        selectNeighborhood(node);
+        selectNeighborhood(element);
     });
     
     cy.on('unselect', 'node', function (e) { // Clicking away (unselect)
@@ -47,15 +50,18 @@ function createGraph(args) {
             cy.elements().removeClass('nhoodSelected');
         });
         
-        var nodeDomain = node; // if node isn't actually domain, set it right
         var nhood = node.closedNeighborhood();
+        var nodeDomain = node; // if node isn't actually domain, set it right
+        
         if (node.data('type') == 'cookie') {
             nhood.forEach(function (n) {
                 if (n.data('type') == 'domain') {
                     nodeDomain = n;
                 };
             });
-        }
+        } else if (node.data('type') == 'thirdParty') {
+            nodeDomain = node.target();
+        }        
         
         // select all nodes in the neighboorhood of the domain
         var domainHood = nodeDomain.closedNeighborhood();
@@ -77,26 +83,52 @@ function createGraph(args) {
         }
         node.addClass('tooltip');
         
+        var qtipTitle;
+        var qtipContent;
         // domain (parent) nodes do not have the same amount of info as cookie nodes
         if (node.data('type') == 'domain') {
-            var qtipContent = '<b>'+node.data('type')+':  '+node.data('searchData')+
-                              '</b><br>'+node.data('fullDomain')+node.data('path');
+            qtipTitle =   'Domain:  '+node.data('searchData');
+            qtipContent = '<table class="table table-condensed borderless" id="tooltip">'+
+                          '<tr><td>Full Domain:</td><td>'+node.data('fullDomain')+node.data('path')+
+                          '</td></tr><td>Total Cookies:</td><td>'+countCookies(node)+'</td></tr></table>';
+        } else if (node.data('type') == 'cookie') {
+            qtipTitle =   'Cookie Name:'+node.data('name');
+            qtipContent = '<table class="table table-condensed borderless" id="tooltip">'+
+                          '<tr><td>Value:  </td><td>'+node.data('value')+
+                          '</td></tr><tr><td>Domain:</td><td>'+node.data('fullDomain')+node.data('path')+
+                          '</td></tr><tr><td>Expiration Date:</td><td>'+new Date(node.data('expirationDate')*1000)+
+                          '</td></tr><tr><td>HTTP Only:</td><td>'+node.data('httpOnly')+
+                          '</td></tr><tr><td>Host Only:</td><td>'+node.data('hostOnly')+
+                          '</td></tr><tr><td>Secure:</td><td>'+node.data('secure')+
+                          '</td></tr><tr><td>Session:</td><td>'+node.data('session')+'</td></tr></table>';
+        } else if (node.data('type') == 'thirdParty') {
+            qtipTitle =   'Third Party Connection'
+            qtipContent = '<table class="table table-condensed borderless" id="tooltip">'+
+                          '<tr><td>Source:</td><td>'+node.data('sourceDomain')+
+                          '</td></tr><tr><td>Target:</td><td>'+node.data('target');
         } else {
-            var qtipContent = '<b>'+node.data('type')+':  '+node.data('name')+
-                              '</b><br>Path:  '+node.data('fullDomain')+node.data('path')+
-                              '<br>HttpOnly?  '+node.data('httpOnly')+
-                              '<br>Secure?  '+node.data('secure')+
-                              '<br>Session?  '+node.data('session')+
-                              '<br>Expiration:  '+new Date(node.data('expirationDate')*1000)+
-                              '<br>Value:  '+node.data('value');
+            return;
         }
         
         node.qtip({
-            content: qtipContent,
+            content: {
+                title: qtipTitle,
+                text: qtipContent,
+            },
             style: {
                 classes: 'qtip-bootstrap'
             }
         });
+    }
+    
+    function countCookies(domain) {
+        var num = 0;
+        domain.closedNeighborhood().forEach(function (n) {
+            if (n.data('type') == 'cookie') {
+                num++;
+            }
+        });
+        return num;
     }
 
     // Unselects selected/highlighed node, zooms out, and returns nodes to original positions
@@ -213,6 +245,7 @@ function createGraph(args) {
                 'fullDomain': cook.domain,
                 'path': cook.path,
                 'secure': cook.secure,
+                'hostOnly': cook.hostOnly,
                 // if httpOnly is true, cookie is inaccessible to client-side scripts 
                 //   (prevents potentially sensitive cookie info from being sent)
                 // http://www.troyhunt.com/2013/03/c-is-for-cookie-h-is-for-hacker.html
@@ -235,6 +268,7 @@ function createGraph(args) {
                 'class': mainDomain,
                 source: mainDomain,
                 target: key,
+                'type': 'none',
                 'weight': '2'
             },
             'selectable': 'false'
@@ -353,12 +387,12 @@ function createGraph(args) {
                 if (typeof obj[key]['domains'] === 'undefined') {
                     continue;
                 }
-                createThirdPartyEdges(key, obj[key]['domains']);
+                createThirdPartyEdges(key, obj[key]['domains'], cook.domain);
             }
         });
     };
 
-    function createThirdPartyEdges(key,domainsToAdd) {
+    function createThirdPartyEdges(key,domainsToAdd, sourceDomain) {
         if (Object.keys(domainsToAdd).length < 1) {
             return;
         }
@@ -382,6 +416,7 @@ function createGraph(args) {
                         source: key,
                         target: dom,
                         'type': 'thirdParty',
+                        'sourceDomain': sourceDomain,
                         'weight': '1'
                     },
                     'selectable': 'false'
