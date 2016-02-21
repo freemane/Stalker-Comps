@@ -7,6 +7,14 @@
     z-index: 1;
 }
 
+/*from http://stackoverflow.com/questions/8160494/how-to-make-a-whole-div-clickable-in-html-and-css-without-javascript*/
+a.fill-div {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+
 /*
 ontop divs:  puts an absolute div around each button/element to layer it above 
 the graph. Positions are defined manually to prevent buttons from laying on top 
