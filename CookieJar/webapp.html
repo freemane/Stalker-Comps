@@ -68,34 +68,36 @@
     <!--  Classes are used to apply Bootstrap style  -->
         
     <div class="container ontop">
-        <div class="col-sm-3">
-            <div class="row">
+        <div class="col-sm-12">
+            <div class="row top-buffer">
             <div id="search-wrapper">
             <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
             <span class="glyphicon glyphicon-remove-circle" id="clearSearch">                   </span>
             </div>
         </div>
-
-            <div class="row">
-            <button class="btn btn-default btn-block" id="reset">Reset View</button>
+        </div><br><br><br>
+            
+        <div class="col-sm-6">
+            <div class="row top-buffer">
+            <button class="btn btn-default btn-block" id="reset"><span class="glyphicon glyphicon-refresh"></span> Reset View <span class="glyphicon glyphicon-refresh"></span></button>
             </div>
             
-            <div class="row">
+            <div class="row top-buffer">
             <button class="btn btn-default btn-block" id="mostRecent">Newest Cookie</button>
             </div>
-            <div class="row">
+            <div class="row top-buffer">
             <button class="btn btn-default btn-block" id="mostCookies">Most Cookies</button>
             </div>
-            <div class="row">
+            <div class="row top-buffer">
             <button class="btn btn-default btn-block" id="mostThirdParty">Most Third Party Cookies</button>
             </div>
         </div>
     </div>
     
-    
     <div class="col-sm-9"></div>
     
-        <div class="col-sm-3">
+    <div class="col-sm-2">
+    <div class="row top-buffer">
     <div class="container ontop">
             <a href="#" title="Key" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="grey nodes represent domains, cookie images are cookies, grey lines connect domains to cookies, and dashed lines connect domains to third party domains.">  What does this graph show?</a> <br> <br>
             <p>Apply Filters:</p>
@@ -103,7 +105,8 @@
                 <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label>
                 <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label>
             </div>
-        </div>
+    </div>
+    </div>
     </div>
     
 	<div id="cy"></div>
