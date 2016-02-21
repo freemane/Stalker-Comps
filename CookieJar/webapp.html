@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
 <script type="text/javascript" src="./bootstrap/js/bootstrap.min.js"></script>
 
-<!--Cytoscape-->
+<!--  Cytoscape  -->
 <script type="text/javascript" src="./cytoscape.js-2.5.4/cytoscape.min.js"></script>
 <link rel="stylesheet" type="text/css" href="./css/webapp.css">
 <link rel="stylesheet" type="text/css" href="./css/typeahead.css">
@@ -29,6 +29,9 @@
 <script type="text/javascript" src="./js/graph.js"></script>
 <script type="text/javascript" src="./js/cookieDisplay.js"></script>
 
+<!--  Style for webapp  -->
+<link href="./css/normalize.css" rel="stylesheet" type="text/css" />
+    
 <link rel="icon" type="image/png" href="/icon.png"/>
 <link rel="keyarrow" type="image/png" href="/keyarrow.png"/>
 <link rel="keycookie" type="image/png" href="/keycookie.png"/>
@@ -69,54 +72,43 @@
 
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
-    <!--  Classes are used to apply Bootstrap style  -->
-        
-    <div class="container ontop">
-        <div class="col-sm-12">
-            <div class="row top-buffer">
-            <div id="search-wrapper">
-            <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
-            <span class="glyphicon glyphicon-remove-circle" id="clearSearch">                   </span>
-            </div>
-        </div>
-        </div><br><br><br>
-            
-        <div class="col-sm-6">
-            <div class="row top-buffer">
-            <button class="btn btn-default btn-block" id="reset"><span class="glyphicon glyphicon-refresh"></span> Reset View <span class="glyphicon glyphicon-refresh"></span></button>
-            </div>
-            
-            <div class="row top-buffer">
-            <button class="btn btn-default btn-block" id="mostRecent">Newest Cookie</button>
-            </div>
-            <div class="row top-buffer">
-            <button class="btn btn-default btn-block" id="mostCookies">Most Cookies</button>
-            </div>
-            <div class="row top-buffer">
-            <button class="btn btn-default btn-block" id="mostThirdParty">Most Third Party Cookies</button>
-            </div>
-        </div>
-    </div>
     
-    <div class="col-sm-9"></div>
-    
-    <div class="col-sm-2">
-    <div class="row top-buffer">
-    <div class="container ontop">
+    <div class="ontop1 container"><span class="col-sm-6">
+        <div id="search-wrapper">
+        <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
+        <span class="glyphicon glyphicon-remove-circle" id="clearSearch"></span>
+        </div>
+    </span></div>
 
-            <button type="button" data-placement="bottom" class="btn btn-default" data-toggle="popover" data-trigger="focus" title="Key">What does this graph show?</button> <br> <br>
-            <p>Apply Filters:</p>
-            <div id="filters">
-                <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br>
-                <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br>
-                <input id="normalEdge" type="checkbox" checked></input><label for="normalEdge">First Party Edges</label><br>
-                <input id="thirdParty" type="checkbox" checked></input><label for="thirdParty">Third Party Edges</label>
-            </div>
-    </div>
-    </div>
-    </div>
+    <div class="ontop2 container"><span class="col-sm-3">
+        <button class="btn btn-default btn-block" id="reset"><span class="glyphicon glyphicon-refresh"></span> 
+        Reset View <span class="glyphicon glyphicon-refresh"></span></button>
+    </span></div>
     
-	<div id="cy"></div>
+    <div class="ontop3 container"><span class="col-sm-3">
+        <button class="btn btn-default btn-block" id="mostRecent">Newest Cookie</button>
+    </span></div>
+        
+    <div class="ontop4 container"><span class="col-sm-3">
+        <button class="btn btn-default btn-block" id="mostCookies">Most Cookies</button>
+    </span></div>
+    
+    <div class="ontop5 container"><span class="col-sm-3">
+        <button class="btn btn-default btn-block" id="mostThirdParty">Most 3rd Party Cookies</button>
+    </span></div>
+
+    <div class="relative container"><div class="ontop6 container" id="filters">
+        <button type="button" data-placement="bottom" class="btn btn-default" data-toggle="popover" data-trigger="focus" title="Key">
+        What does this graph show?</button> <br> <br>
+        Apply Filters:<br>
+            <input id="domain" type="checkbox" checked></input><label for="domain">Domain</label><br>
+            <input id="cookie" type="checkbox" checked></input><label for="cookie">Cookie</label><br>
+            <input id="normalEdge" type="checkbox" checked></input><label for="normalEdge">First Party Edges</label><br>
+            <input id="thirdParty" type="checkbox" checked></input><label for="thirdParty">Third Party Edges</label>
+    </div></div>
+
+<div id="cy"></div>
+    
 </div>
 
 <!--  div of FAQ  -->
