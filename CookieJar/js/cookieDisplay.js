@@ -25,7 +25,10 @@ $(function () {
     $('#WebApp').click(openWebapp);
     $('#SelectAll').click(selectAll);
     $('#UnselectAll').click(unselectAll);
-    $('[data-toggle="popover"]').popover();
+    $('[data-toggle="popover"]').popover({
+        html : true,
+        content: '<div class="media-body"><img src="keycookie.png" style="width:30px;height:30px;border-radius:25px;">  Your cookie   <img src="keyjar.png" style="width:30px;height:30px;">  Domain<br><img src="keyarrow.png" style="width:50px;height:20px;"> These arrows connect cookies to their domain<br><img src="keytparrow.png" style="width:50px;height:20px;"> These arrows connect domains to third party domains<br></div>'
+    });
 });
 
 /*
