@@ -491,9 +491,11 @@ function createGraph(args) {
         //        console.log('filters button pressed');
         var domain = $('#domain').is(':checked');
         var cookie = $('#cookie').is(':checked');
+        var normalEdge = $('#normalEdge').is(':checked');
+        var thirdParty = $('#thirdParty').is(':checked');
 
         cy.batch(function () {
-            cy.nodes().forEach(function (n) {
+            cy.elements().forEach(function (n) {
                 n.removeClass('filtered');
 
                 var filter = function () {
@@ -501,7 +503,7 @@ function createGraph(args) {
                 };
 
                 var cType = n.data('type');
-                if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie)) {
+                if ((cType === 'domain' && !domain) || (cType === 'cookie' && !cookie) || (cType === 'none' && !normalEdge) || (cType === 'thirdParty' && !thirdParty)) {
                     filter();
                 }
             });
