@@ -132,8 +132,7 @@ function createTable(data, cookieDiv, options, cookieData) {
     table.appendChild(tableBody);
 
     $(cookieDiv).append(table);
-    var cookieTable = initializeDataTable(tableName, lengthOption);
-
+    initializeDataTable(tableName, lengthOption);
 };
 
 // Function to add cells to row. Need to change this to add buttons to the row
@@ -351,8 +350,12 @@ Allows for shift clicking to select multiple rows at once
 //TODO - Modularize the shiftClick and show functionality into different functions
 function initializeDataTable(tableName, lengthOption) {
     cookieTable = $('#' + tableName).DataTable({
+      paging: false,
+      scrollY:        "300px",
+      scrollCollapse: true
         // 'lengthMenu': lengthOption
     });
+    $('#'+tableName).css({"overflow":"scroll !important","height":"450px !important"});
 
     // allows a single row to be selected
     $('#' + tableName + ' tbody').on('click', 'tr', function(e) {
