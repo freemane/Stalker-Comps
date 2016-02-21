@@ -1,6 +1,6 @@
 node {
     label: data(name);
-    font-size: 1; /* the lower the value, the more compact the graph */
+    font-size: 5; /* the lower the value, the more compact the graph */
     background-fit: cover;
     color: #666;
 }

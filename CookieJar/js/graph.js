@@ -92,11 +92,11 @@ function createGraph(args) {
                           '<tr><td>Full Domain:</td><td>'+node.data('fullDomain')+node.data('path')+
                           '</td></tr><td>Total Cookies:</td><td>'+countCookies(node)+'</td></tr></table>';
         } else if (node.data('type') == 'cookie') {
-            qtipTitle =   'Cookie Name:'+node.data('name');
+            qtipTitle =   'Cookie Name:  '+node.data('name');
             qtipContent = '<table class="table table-condensed borderless" id="tooltip">'+
-                          '<tr><td>Value:  </td><td>'+node.data('value')+
+                          '<tr><td>Value:  </td><td>'+crop(node.data('value'))+
                           '</td></tr><tr><td>Domain:</td><td>'+node.data('fullDomain')+node.data('path')+
-                          '</td></tr><tr><td>Expiration Date:</td><td>'+new Date(node.data('expirationDate')*1000)+
+                          '</td></tr><tr><td>Expires:</td><td>'+new Date(node.data('expirationDate')*1000)+
                           '</td></tr><tr><td>HTTP Only:</td><td>'+node.data('httpOnly')+
                           '</td></tr><tr><td>Host Only:</td><td>'+node.data('hostOnly')+
                           '</td></tr><tr><td>Secure:</td><td>'+node.data('secure')+
@@ -119,6 +119,13 @@ function createGraph(args) {
                 classes: 'qtip-bootstrap'
             }
         });
+    }
+    
+    function crop(text) {
+        if (text.length > 150) {
+            return text.substring(0,150)+'... (see table for full value)';
+        }
+        return text;
     }
     
     function countCookies(domain) {
