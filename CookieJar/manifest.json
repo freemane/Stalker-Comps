@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
 
-    "name": "Cookie Comps Extension",
+    "name": "CookieJar",
     "description": "This extension is what we're using to learn about chrome extensions and interacting with cookies",
     "version": "1.1",
     "browser_action": {
