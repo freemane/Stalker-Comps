@@ -6,7 +6,13 @@
     margin-right: auto;
     z-index: 2;
 }
-
+/*from http://stackoverflow.com/questions/8160494/how-to-make-a-whole-div-clickable-in-html-and-css-without-javascript*/
+a.fill-div {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
 .ontop {
     position: absolute;
     z-index: 5;
