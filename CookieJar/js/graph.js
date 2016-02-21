@@ -429,9 +429,6 @@ function createGraph(args) {
                     'selectable': 'false'
                 };
                 edges.push(edgeObj);
-//                console.log('3rd party cookie: '.concat(dom));
-            } else if (!domains[dom]) {
-//                console.log('not valid cookie dom: '.concat(dom));
             }
         }
         cy.add(edges);
@@ -494,8 +491,7 @@ function createGraph(args) {
         selectNeighborhood(n);
     });
 
-    $('#filters').on('click', function () {
-        //        console.log('filters button pressed');
+    $('#filters').on('click', function () {;
         var domain = $('#domain').is(':checked');
         var cookie = $('#cookie').is(':checked');
         var normalEdge = $('#normalEdge').is(':checked');

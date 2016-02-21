@@ -30,8 +30,6 @@ function getAllCookies() {
 	        var cookieData = [];
 
 	        outputCookies.push(['','Name','Domain']);
-	        // outputCookies.push(['Name','Domain','Select']);
-
 	        //put cookies into table format
 
 	        //TODO - See if we can pass the unmodified cookies, keep headers same
@@ -52,9 +50,6 @@ function getAllCookies() {
 	            // });
 	            outputCookies.push(['',cook.name, cook.domain]);
 	        }
-
-	        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
-
 
 	        //changes text in popup if table is empty
 	        if (outputCookies.length == 1){
