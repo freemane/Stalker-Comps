@@ -12,10 +12,8 @@ function getAllCookies() {
         var outputCookies = [];
         var newCookies = [];
         outputCookies.push(['','Name','Domain']);
-        // outputCookies.push(['Name','Domain','Select']);
 
         //put cookies into table format
-
         //TODO - See if we can pass the unmodified cookies, keep headers same
         var cookieData = [];
         for (var i = 0; i < cookies.length; i++) {
@@ -38,7 +36,6 @@ function getAllCookies() {
             outputCookies.push(['',name, domain]);
         }
         Promise.all([cookies, styleP]).then(createGraph);
-        //TODO - Create if statement to check if we're in the popup or webapp, call appropriate function
         createTable(outputCookies, '#outputCookies', ['cookieTableWebapp', '100%', [
             [15, 25, 100, -1],
             [15, 25, 100, 'All']

@@ -17,8 +17,6 @@ var cookieTable;
 
 
 // Starts the extension
-//TODO Create globalish variable for allCookies (do this once) and pass when needed
-//TODO Consolidate selectAll function
 $(function () {
     getAllCookies();
     $('#DeleteAll').click(removeAllCookies);
@@ -60,7 +58,7 @@ function extrapolateUrlFromCookie(cookie) {
 }
 
 
-//TODO Consolidate this function and removeAllCookis to one, pass different lists of cookies
+//TODO Consolidate this function and removeAllCookies to one, pass different lists of cookies
 function removeSelectedCookies(selected) {
     chrome.cookies.getAll({},
         function (cookies) {
@@ -78,8 +76,6 @@ function removeSelectedCookies(selected) {
                 }
             }
         });
-    //    DataTables dynammically updates the table so we don't have to reload the page
-    //        location.reload();
 };
 
 /*
@@ -89,8 +85,6 @@ function deleteCookie(url,name,store,value,secure){
 	chrome.cookies.remove({
 		'url':url,
 		'name':name
-    },function(deletedCookie) {
-        //console.log('COOKIE DELETED '+deletedCookie);
     });
 }
 
@@ -141,7 +135,6 @@ function createRowElements(cellType, rowData, cookieData, tableName,index) {
     var count = 0;
     rowData.forEach(function (cellData) {
       if(count == 0 && index != -1) {
-          // Do stuff
           var cell = document.createElement(cellType);
           var button = document.createElement('div');
           var innerTable = document.createElement('div');
@@ -322,7 +315,6 @@ Defines functionality for when a user clicks on a row without holding shift,
 expanding the cell to show more info.
 */
 function regularSelect(curRow,rows,cookieTable,tableName){
-    //TODO - Remove unnecessary classes (selected, shift, shown)
     for(var i = 0;i<rows.length;i++) {
         if($(rows[i]).hasClass('shift')) {
             $(rows[i]).removeClass('shift')
@@ -350,19 +342,13 @@ Allows for shift clicking to select multiple rows at once
 //TODO - Modularize the shiftClick and show functionality into different functions
 function initializeDataTable(tableName, lengthOption) {
     if(tableName === "cookieTableWebapp") {
-      cookieTable = $('#' + tableName).DataTable({
-        // paging: false,
-        // scrollY:        "300px",
-        // scrollCollapse: true
-          // 'lengthMenu': lengthOption
-      });
+      cookieTable = $('#' + tableName).DataTable();
     }
     else {
       cookieTable = $('#' + tableName).DataTable({
         paging: false,
         scrollY:        "300px",
         scrollCollapse: true
-          // 'lengthMenu': lengthOption
       });
     }
 
