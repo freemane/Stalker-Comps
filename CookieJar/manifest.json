@@ -12,6 +12,11 @@
     "background": {
       "scripts": ["js/background.js"]
       },
+
+    "icons": {
+        "48": "HappyCookieSmall.png",
+        "128": "HappyCookie.png"
+    },
     
     "permissions": [
     "activeTab",
@@ -22,4 +27,5 @@
     "storage",
     "\u003Call_urls\u003E"
   ]
+
 }
