@@ -37,6 +37,7 @@ Attempts to remove all cookies using the chrome.cookies API, refreshes page
 Check to see if we can simplify the process with '*'
 */
 function removeAllCookies() {
+  if(confirm("Are you sure you want to delete ALL your cookies?")) {
     chrome.cookies.getAll({},
         function (cookies) {
             for (var j = 0; j < cookies.length; j++) {
@@ -46,6 +47,7 @@ function removeAllCookies() {
             }
         });
     location.reload();
+  }
 };
 
 /*
@@ -234,7 +236,7 @@ function format(cook) {
 }
 
 /*
-
+Shows more information in the table based on which cookie you selected
 */
 function expand(tableName,row,data,expanded) {
     var rows = $('#'+tableName+' > tbody > tr');
