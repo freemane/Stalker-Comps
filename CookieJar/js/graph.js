@@ -299,6 +299,8 @@ function createGraph(args) {
     $('#reset').on('click', function () {
         clear();
         cy.nodes().unselect();
+        // http://stackoverflow.com/questions/23461322/cytoscape-js-wrong-mouse-pointer-position-after-container-change
+        cy.resize();
         // returns objects to their original positions
         cy.layout(layout);
     });
