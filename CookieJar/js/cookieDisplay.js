@@ -467,6 +467,11 @@ function showTab() {
         }
     }
 
+    // Repositions graph -- used to fix a bug when switching between divs
+    if (selectedId == 'graph') {
+        document.getElementById("reset").click();
+    }
+    
     // Stop the browser following the link
     return false;
 }
