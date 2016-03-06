@@ -74,6 +74,16 @@ of each other.
     z-index: 10;
 }
 
+/* dropdown to display more */
+.ontop7 {
+    height: 0px;
+    position: absolute;
+    top: 400px;
+    right: 725px;
+    left: 0px;
+    z-index: 10;
+}
+
 /* fixes the rightmost ontop div to the right side of the page */
 .relative {
     position: relative;
@@ -94,6 +104,11 @@ of each other.
 #search-wrapper .empty-message {
     padding: 5px 10px;
     text-align: center;
+}
+
+/* fit dropdown options to width of button */
+.dropdown-menu {
+  width: 100%; 
 }
 
 *.unselectable {

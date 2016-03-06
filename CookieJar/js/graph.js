@@ -215,22 +215,108 @@ function createGraph(args) {
     };
     
     // Only display 100 cookies
-    var amountToDisplay = Math.min(data.length,100);
-    getStoredDomains();
-    for (var i = 0; i < amountToDisplay; i++) {
-        var cook = data[i];
-        var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
-        var key = mainDomain.concat(cook.name);
-        if (!(mainDomain in domains)) {
-            var parent = {
+    var DEFAULT = 100;
+    var amountToDisplay = Math.min(data.length,DEFAULT);
+    
+    $('#op1').click(function(e) {
+        dropdown(DEFAULT);
+        e.preventDefault();
+    });
+    
+    $('#op2').click(function(e) {
+        dropdown(parseInt(data.length / 3));
+        e.preventDefault();
+    });    
+    
+    $('#op3').click(function(e) {
+        dropdown(parseInt(2 * data.length / 3));
+        e.preventDefault();
+    }); 
+    
+    $('#op4').click(function(e) {
+        dropdown(data.length);
+        e.preventDefault();
+    });     
+    
+    function dropdown(newAmount) {
+        if (amountToDisplay > newAmount) {
+            cy.elements().remove();
+        } else if (amountToDisplay == newAmount) {
+            return;
+        }
+        
+        amountToDisplay = newAmount;
+        drawGraph(amountToDisplay);
+        cy.layout(layout);
+    };    
+    
+    // shows ## of cookies out of all cookies
+    $('#amountShowing').on('myEvent', function (event, amountToDisplay) {
+        $(this).text('Showing ' + amountToDisplay + ' of ' + data.length + ' cookies').show();
+    });
+    
+    // shows warning for showing more cookies
+    $('a[title]').qtip({
+        content: {
+            title: 'Warning!',
+            text: 'Displaying more cookies may slow down CookieJar.',
+        },
+        style: {
+            classes: 'qtip-bootstrap'
+        }
+    });
+    
+    drawGraph(amountToDisplay);
+    function drawGraph(amountToDisplay) {
+        points = []; // clear points and domains to redraw with different amounts
+        domains = {};
+        getStoredDomains();
+        $('#amountShowing').trigger('myEvent', amountToDisplay);
+        
+        for (var i = 0; i < amountToDisplay; i++) {
+            var cook = data[i];
+            var mainDomain = shortDomain(cook.domain);      // Removes the subdomain portion
+            var key = mainDomain.concat(cook.name);
+            if (!(mainDomain in domains)) {
+                var parent = {
+                    'data': {
+                        'id': mainDomain,
+                        'type': 'domain',
+                        'name': mainDomain,
+                        'fullDomain': cook.domain,
+                        'path': cook.path,
+                        'searchData': mainDomain,
+                        'weight': 2,
+                    },
+                    'removed': false,
+                    'selected': false,
+                    'selectable': true,
+                    'locked': false,
+                    'grabbable': false,
+                };
+                points.push(parent);
+                domains[mainDomain] = true;
+            }
+            //TODO: Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
+            var node = {
                 'data': {
-                    'id': mainDomain,
-                    'type': 'domain',
-                    'name': mainDomain,
+                    'id': key,
+                    'type': 'cookie',
+                    'name': cook.name,
+                    'value': cook.value,
+                    'domain': mainDomain,
                     'fullDomain': cook.domain,
                     'path': cook.path,
-                    'searchData': mainDomain,
-                    'weight': 2,
+                    'secure': cook.secure,
+                    'hostOnly': cook.hostOnly,
+                    // if httpOnly is true, cookie is inaccessible to client-side scripts 
+                    //   (prevents potentially sensitive cookie info from being sent)
+                    // http://www.troyhunt.com/2013/03/c-is-for-cookie-h-is-for-hacker.html
+                    'httpOnly': cook.httpOnly,
+                    'session': cook.session,
+                    'expirationDate': cook.expirationDate,
+                    'searchData': mainDomain + '/' + cook.name,
+                    'weight': 1,
                 },
                 'removed': false,
                 'selected': false,
@@ -238,50 +324,22 @@ function createGraph(args) {
                 'locked': false,
                 'grabbable': false,
             };
-            points.push(parent);
-            domains[mainDomain] = true;
+            // Connects domains to their cookies
+            var edgeObj = {
+                data: {
+                    'id': key.concat('parentedge'),
+                    'class': mainDomain,
+                    source: mainDomain,
+                    target: key,
+                    'type': 'none',
+                    'weight': '2'
+                },
+                'selectable': 'false'
+            };
+            points.push(node);
+            points.push(edgeObj);
         }
-        //TODO: Could have problem if main domains have the same cookie name ie .google.com and google.com both having _utma 
-        var node = {
-            'data': {
-                'id': key,
-                'type': 'cookie',
-                'name': cook.name,
-                'value': cook.value,
-                'domain': mainDomain,
-                'fullDomain': cook.domain,
-                'path': cook.path,
-                'secure': cook.secure,
-                'hostOnly': cook.hostOnly,
-                // if httpOnly is true, cookie is inaccessible to client-side scripts 
-                //   (prevents potentially sensitive cookie info from being sent)
-                // http://www.troyhunt.com/2013/03/c-is-for-cookie-h-is-for-hacker.html
-                'httpOnly': cook.httpOnly,
-                'session': cook.session,
-                'expirationDate': cook.expirationDate,
-                'searchData': mainDomain + '/' + cook.name,
-                'weight': 1,
-            },
-            'removed': false,
-            'selected': false,
-            'selectable': true,
-            'locked': false,
-            'grabbable': false,
-        };
-        // Connects domains to their cookies
-        var edgeObj = {
-            data: {
-                'id': key.concat('parentedge'),
-                'class': mainDomain,
-                source: mainDomain,
-                target: key,
-                'type': 'none',
-                'weight': '2'
-            },
-            'selectable': 'false'
-        };
-        points.push(node);
-        points.push(edgeObj);
+        cy.add(points);
     }
     cy.add(points);
     var layout = {
