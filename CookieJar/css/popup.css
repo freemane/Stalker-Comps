@@ -1,5 +1,5 @@
 body {
-  width: 650px; 
+  width: 650px;
   min-height: 100%;
   position: relative;
   vertical-align:middle;
@@ -31,7 +31,7 @@ body {
 
 td.details-control {
     background: url('details_open.png') no-repeat center center;
-    
+
     cursor: pointer;
 }
 tr.shown td.details-control {
@@ -42,3 +42,10 @@ h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+table.dataTable.display tbody tr.thirdPartyRow {
+  background-color: #F5A9A9;
+}
+
+.thirdPartySelected {
+
+}

@@ -158,16 +158,48 @@ function createRowElements(cellType, rowData, cookieData, tableName,index) {
 
           cell.appendChild(button);
           row.appendChild(cell);
+          colorCell(cookieData[index],row);
+          colorCell(cookieData[index],button.parentElement);
+
       }
       else {
           var cell = document.createElement(cellType);
           cell.appendChild(document.createTextNode(cellData));
           row.appendChild(cell);
+          // colorCell(cookieData[index],row);
       }
       count = count + 1;
 
+
     });
     return row;
+}
+
+function colorCell(cook,row) {
+  var key = shortDomain(cook.domain).concat(cook.name);
+  chrome.storage.local.get(key, function (obj) {
+
+      if (typeof obj ==='undefined') {
+          return;
+      }
+      if (typeof obj[key] === 'undefined') {
+          return;
+      }
+      if (typeof obj[key]['count'] === 'undefined') {
+          return;
+      }
+      if (obj[key]['count'] >0) {
+        if($(row).hasClass("even")) {
+          $(row).removeClass("even");
+        }
+        else{
+          $(row).removeClass("odd");
+        }
+
+        // $(row).css("background-color: #FE2E2E !important");
+        $(row).addClass("thirdPartyRow");
+      }
+  });
 }
 
 /*
@@ -325,10 +357,11 @@ function regularSelect(curRow,rows,cookieTable,tableName){
     var tr = curRow.closest('tr');
     var row = cookieTable.row( tr );
     // If the button was clicked, don't do this
+
     if (curRow.hasClass('selected')) {
         curRow.removeClass('selected');
-
-    } else {
+    }
+    else {
         cookieTable.$('tr.selected'); //.removeClass('selected');
         curRow.addClass('selected');
     }
@@ -471,7 +504,7 @@ function showTab() {
     if (selectedId == 'graph') {
         document.getElementById("reset").click();
     }
-    
+
     // Stop the browser following the link
     return false;
 }

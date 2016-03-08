@@ -1,5 +1,5 @@
 // from http://stackoverflow.com/a/16504563
-        
+
 //chrome.browserAction.onClicked.addListener(function(activeTab){
 //  var newURL = "chrome://settings/cookies";
 //  chrome.tabs.create({ url: newURL });
@@ -8,8 +8,6 @@
 
 // used to clear storage area when changing storage layout
 //chrome.storage.local.clear(function(){alert('cleared CookieJar stash');});
-
-//TODO Code review ALL of this (add comments as well)
 
 
 // On first run opens our FAQ/getting started page (eventually)
@@ -60,7 +58,7 @@ function shortDomain(url) {
 
 /*
 When cookies are removed from the browser, removes the equivalent entry from our db
-*/                                    
+*/
 chrome.cookies.onChanged.addListener ( function (changed) {
     var cookie = changed.cookie;
     var cause = changed.OnChangedCause;
@@ -74,7 +72,7 @@ chrome.cookies.onChanged.addListener ( function (changed) {
 /*
 Stores the 3rd party connection in the option with the corresponding cookie object
 
-Appends to an object that already exists if it can, otherwise creates a new object 
+Appends to an object that already exists if it can, otherwise creates a new object
 */
 function setDomainInfo(key,domain,callback) {
     chrome.storage.local.get( key,function(item){
@@ -82,7 +80,7 @@ function setDomainInfo(key,domain,callback) {
         if (typeof setObject != 'object') {
             var t = new Date();
             setObject= {domains:{},setTime:t.getTime(),count:0};
-        } 
+        }
         if (typeof setObject['domains'][domain] === 'undefined'){
             setObject['domains'][domain] = 0;
         }
