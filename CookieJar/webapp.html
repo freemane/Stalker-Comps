@@ -24,7 +24,7 @@
 <link href="./css/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
 <script src="./js/jquery.qtip.min.js"></script>
 <script src="./js/cytoscape-qtip.js"></script>
-    
+
 <!--  For displaying the cookies  -->
 <script type="text/javascript" src="./js/webapp.js"></script>
 <script type="text/javascript" src="./js/graph.js"></script>
@@ -32,7 +32,7 @@
 
 <!--  Style for webapp  -->
 <link href="./css/normalize.css" rel="stylesheet" type="text/css" />
-    
+
 <link rel="icon" type="image/png" href="/icon.png"/>
 <link rel="keyarrow" type="image/png" href="/keyarrow.png"/>
 <link rel="keycookie" type="image/png" href="/keycookie.png"/>
@@ -53,7 +53,7 @@
 
 <!--  div of graph  -->
 <div class="tabContent" id="graph">
-    
+
     <div class="ontop1 container"><span class="col-sm-6">
         <div id="search-wrapper">
         <input type="text" class="form-control" id="search" placeholder="Search Cookies and Domains">
@@ -62,18 +62,18 @@
     </span></div>
 
     <div class="ontop2 container"><span class="col-sm-3">
-        <button class="btn btn-default btn-block" id="reset"><span class="glyphicon glyphicon-refresh"></span> 
+        <button class="btn btn-default btn-block" id="reset"><span class="glyphicon glyphicon-refresh"></span>
         Reset View <span class="glyphicon glyphicon-refresh"></span></button>
     </span></div>
-    
+
     <div class="ontop3 container"><span class="col-sm-3">
         <button class="btn btn-default btn-block" id="mostRecent">Newest Cookie</button>
     </span></div>
-        
+
     <div class="ontop4 container"><span class="col-sm-3">
         <button class="btn btn-default btn-block" id="mostCookies">Most Cookies</button>
     </span></div>
-    
+
     <div class="ontop5 container"><span class="col-sm-3">
         <button class="btn btn-default btn-block" id="mostThirdParty">Most 3rd Party Cookies</button>
     </span></div>
@@ -106,7 +106,7 @@
     </span></div>
 
 <div id="cy"></div>
-    
+
 </div>
 
 <!--  div of FAQ  -->
@@ -115,9 +115,9 @@
       <div class="container">
 <br>
 
-  </div> 
+  </div>
 
-    <br>      
+    <br>
       <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -154,7 +154,7 @@
         </div>
             <div id="collapseSix" class="panel-collapse collapse">
                 <div class="panel-body">
-                    <p>Most cookies are pretty harmless, and can be even useful! However, third-party tracking cookies can also be used to compile records of your browsing history, which is a potential privacy concern. Under the “preferences” category, things like your location, purchase history, age estimates, and even whether or not you are pregnant can be extrapolated by browsing history and can be used to market particular merchandise to you through online advertisements.</p>      
+                    <p>Most cookies are pretty harmless, and can be even useful! However, third-party tracking cookies can also be used to compile records of your browsing history, which is a potential privacy concern. Under the “preferences” category, things like your location, purchase history, age estimates, and even whether or not you are pregnant can be extrapolated by browsing history and can be used to market particular merchandise to you through online advertisements.</p>
                 </div>
             </div>
         </div>
@@ -172,7 +172,7 @@
                 <p><i>Secure cookies</i> can only be sent over a secure or encrypted connection, so they reduce the risk of cookie theft by those who may be listening on your connection.</p>
                 <p><i>Zombie cookies</i> are cookies that even when deleted will be reset by a locally stored script. You can learn more about them <a href="https://en.wikipedia.org/wiki/Zombie_cookie">here</a>.</p>
                 <p><i>First-party cookies</i> are cookies set by the website you are currently browsing.</p>
-                <p><i>Third-party cookies</i> are set by other domains, and typically show up on websites that show advertising content (such as facebook, twitter, etc.). They open up the potential for tracking your browsing history in order to figure out what ads to show you.</p>     
+                <p><i>Third-party cookies</i> are set by other domains, and typically show up on websites that show advertising content (such as facebook, twitter, etc.). They open up the potential for tracking your browsing history in order to figure out what ads to show you.</p>
             </div>
         </div>
     </div>
@@ -180,13 +180,13 @@
         <div class="panel-heading">
         <h4 class="panel-title">
             <a data-toggle="collapse" data-parent="#accordion" class="fill-div" href="#collapseEight">
-            How does CookieJar help? </a>      
+            How does CookieJar help? </a>
         </h4>
         </div>
         <div id="collapseEight" class="panel-collapse collapse">
             <div class="panel-body">
-                <p>CookieJar is a tool that’s designed to help you visualize, track, and delete your cookies. You can use the web extension to easily delete a recent cookie that’s affecting your advertising experience in a negative way, or go to the larger application to visualize which websites are tracking your data and delete cookies on a larger scale.</p> 
-            </div>    
+                <p>CookieJar is a tool that’s designed to help you visualize, track, and delete your cookies. You can use the web extension to easily delete a recent cookie that’s affecting your advertising experience in a negative way, or go to the larger application to visualize which websites are tracking your data and delete cookies on a larger scale.</p>
+            </div>
         </div>
         </div>
         <div class="panel panel-default">
@@ -198,7 +198,7 @@
         </div>
         <div id="collapseTwelve" class="panel-collapse collapse">
             <div class="panel-body">
-                <p>The short answer is no. Permanently deleting zombie cookies requires access to your hard drive. To delete one type of zombie cookie yourself, you can follow the instructions <a href="http://stackoverflow.com/questions/10204275/where-does-flash-cookie-store-on-mac">here</a>. </p>     
+                <p>The short answer is no. Permanently deleting zombie cookies requires access to your hard drive. To delete one type of zombie cookie yourself, you can follow the instructions <a href="http://stackoverflow.com/questions/10204275/where-does-flash-cookie-store-on-mac">here</a>. </p>
             </div>
         </div>
     </div>
@@ -223,6 +223,7 @@
 
 <!--  div of table  -->
 <div class="tabContent" id="table">
+  <p>Cookies highlighted in <span style="color: #F5A9A9">this</span> color are third party cookies.</p>
 	<div id="outputCookies" class="unselectable"></div>
     <div class="row">
         <div class="col-sm-5">
@@ -232,9 +233,9 @@
             <input class="btn btn-default" type = "button" id="UnselectAll" Value="Unselect All">
         </div>
         <div class="col-sm-6"></div>
-        <a href="#" title="Key" data-toggle="popover" data-placement="top" data-trigger="focus" data-content="Cookies are sorted by name and domain. You can click on a row for more information. Delete selected cookies or delete all of them as you like."> 
+        <a href="#" title="Key" data-toggle="popover" data-placement="top" data-trigger="focus" data-content="Cookies are sorted by name and domain. You can click on a row for more information. Delete selected cookies or delete all of them as you like.">
             <span class="glyphicon glyphicon-question-sign" style="color:blue"></span>
-        </a> 
+        </a>
     </div>
 </div>
 
